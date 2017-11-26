@@ -1,9 +1,46 @@
-$bgColor: white;
+.maze-container {
+	border: 5px solid black;
+	width: 600px;
+	height: 350px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	margin: auto;
 
-body {
-	background-color: $bgColor;
-	
-	h1 {
-		border: 5px solid black;
+	.block {
+		position: absolute;
+		width: 30px;
+		height: 250px;
+		background-color: #aaa;
+
+		&.block1 {
+			top: 50px;
+			left: 70px;
+		}
+
+		&.block2 {
+			bottom: 20px;
+			left: 200px;
+		}
+
+		&.block3 {
+			top: 0;
+			left: 330px;
+		}
+
+		&.block4 {
+			top: 100px;
+			left: 450px;
+			height: 150px;
+		}
+	}
+
+	.fly {
+		background: url('../images/fly.png') center center /contain no-repeat;
+		width: 25px;
+		height: 25px;
+		position: absolute;
 	}
 }

@@ -15,8 +15,12 @@
     "browserify": "^13.1.1",
     "del": "^2.2.2",
     "gulp": "^3.9.1",
-    "gulp-sass": "^3.0.0",
     "gulp-connect": "^5.0.0",
+    "gulp-sass": "^3.0.0",
+    "jquery": "^3.2.1",
     "vinyl-source-stream": "^1.1.0"
+  },
+  "dependencies": {
+    "genetic-js": "^0.1.14"
   }
 }
