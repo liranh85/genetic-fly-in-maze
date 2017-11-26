@@ -1,19 +1,9 @@
 import World from './World';
 import Fly from './Fly';
+import { setInterval } from 'timers';
 
 const appSettings = {
     stopOnFirstFlyOut: false
-}
-
-function getRandomDirection() {
-    const rand = Math.random();
-    if (rand <= 0.333) {
-        return 'up';
-    }
-    if (rand <= 0.666) {
-        return 'down';
-    }
-    return 'forward';
 }
 
 const world = new World({
@@ -24,7 +14,7 @@ const world = new World({
 
 const flies = [];
 const flySettings = {
-    interval: 100,
+    // interval: 500,
     width: 25,
     height: 25,
     flightDistance: 15,
@@ -36,26 +26,12 @@ for (let i = 0; i < numFlies; i++) {
     flies.push(new Fly({
         ...flySettings,
         ... {
-            elmId: `fly${i}`
+            elmId: `fly${i}`,
+            interval: Math.floor(100 * Math.random())
         }
     }));
 }
 
-let interval = window.setInterval(() => {
-    let numFreeFlies = 0;
-    flies.forEach((fly) => {
-        fly.flyTo(getRandomDirection());
-        
-        if (fly.getIsFree()) {
-            if (appSettings.stopOnFirstFlyOut) {
-                clearInterval(interval);
-            }
-            else {
-                numFreeFlies++;
-            }
-        }
-    });
-    if (numFreeFlies === numFlies) {
-        clearInterval(interval);
-    }
-}, flySettings.interval);
+flies.forEach((fly) => {
+    fly.autoPilot();
+});

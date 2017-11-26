@@ -42,6 +42,26 @@ class Fly {
         return newCoordinates;
     }
 
+    _getRandomDirection() {
+        const rand = Math.random();
+        if (rand <= 0.333) {
+            return 'up';
+        }
+        if (rand <= 0.666) {
+            return 'down';
+        }
+        return 'forward';
+    }
+
+    autoPilot() {
+        const auto = setInterval(() => {
+            this.flyTo(this._getRandomDirection());
+            if (this.isFree) {
+                clearInterval(auto);
+            }
+        }, this.interval);
+    }
+
     flyTo(direction) {
         if(this.isFree) {
             return;
@@ -50,7 +70,7 @@ class Fly {
         if (this.reachedExit(coordinates)) {
             this.isFree = true;
             this.coordinates.x += 50;
-            this.flyElm.style.transitionDuration = '1s';
+            this.flyElm.style.transitionDuration = '2s';
             this.flyElm.style.transform = `translate(${this.coordinates.x}px, ${this.coordinates.y}px)`;
             window.setTimeout(() => {
                 const oldTransform = this.flyElm.style.transform;
