@@ -1,4 +1,4 @@
-.maze-container {
+.maze {
 	border: 5px solid black;
 	width: 600px;
 	height: 350px;
@@ -9,28 +9,45 @@
 	left: 0;
 	margin: auto;
 
-	.block {
+	.obstacle {
 		position: absolute;
 		width: 30px;
-		height: 250px;
+		height: 125px;
 		background-color: #aaa;
 
-		&.block1 {
+		&.obstacle1 {
 			top: 50px;
 			left: 70px;
+			height: 50px;
+		}
+		&.obstacle1a {
+			top: 150px;
+			left: 70px;
+			height: 150px;
 		}
 
-		&.block2 {
-			bottom: 20px;
+		&.obstacle2 {
+			top: 80px;
 			left: 200px;
+			height: 150px;
+		}
+		&.obstacle2a {
+			top: 280px;
+			left: 200px;
+			height: 50px;
 		}
 
-		&.block3 {
-			top: 0;
+		&.obstacle3 {
+			top: 40px;
 			left: 330px;
 		}
+		&.obstacle3a {
+			top: 210px;
+			left: 330px;
+			height: 100px;
+		}
 
-		&.block4 {
+		&.obstacle4 {
 			top: 100px;
 			left: 450px;
 			height: 150px;
@@ -39,9 +56,18 @@
 
 	.fly {
 		background: url('../images/fly.png') center center /contain no-repeat;
-		width: 25px;
-		height: 25px;
 		position: absolute;
-		transition: transform .01s;
+		transition-property: transform;
+		z-index: 1;
+	}
+
+	.exit {
+		content: "";
+		width: 5px;
+		height: 100px;
+		position: absolute;
+		top: 130px;
+		right: -5px;
+		background-color: white;
 	}
 }

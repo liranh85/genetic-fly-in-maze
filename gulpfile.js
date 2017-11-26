@@ -14,7 +14,7 @@ function copy(settings) {
 
 gulp.task("browserify", function() {
 	return browserify(config.source + "js/index.js")
-		.transform("babelify", {presets: ['es2015']})
+		.transform("babelify", {presets: ['es2015'], plugins: ['transform-object-rest-spread']})
 		.bundle()
 		.pipe(source('bundle.js'))
 		.pipe(gulp.dest(config.build + "js/"))

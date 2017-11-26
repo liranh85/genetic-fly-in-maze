@@ -2,6 +2,7 @@ class World {
     constructor(settings) {
         this.width = settings.width;
         this.height = settings.height;
+        this.worldElm = document.getElementById(settings.elmId);
     }
 
     isElementInWorld(coordinates, elmWidth, elmHeight) {
@@ -24,9 +25,30 @@ class World {
         return false;
     }
 
+    // isElementInOtherElement(coordinates, elmWidth, elmHeight, targetElmClass) {
+    //     const targetElms = document.querySelectorAll(`.${targetElmClass}`);
+    //     for (let i = 0; i < targetElms.length; i++) {
+    //         if (coordinates.x + elmWidth >= targetElms[i].offsetLeft
+    //             && coordinates.x <= targetElms[i].offsetLeft + targetElms[i].offsetWidth
+    //             && coordinates.y + elmHeight >= targetElms[i].offsetTop
+    //             && coordinates.y <= targetElms[i].offsetTop + targetElms[i].offsetHeight) {
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
+
     isElementAtExit(coordinates, elmWidth, elmHeight) {
         // TO DO: implement
-        return false;
+        // return this.isElementOnOtherElement(coordinates, elmWidth, elmHeight, 'exit');
+
+        const exit = document.getElementById('exit');
+
+        if (coordinates.x + elmWidth >= exit.offsetLeft
+            && coordinates.y >= exit.offsetTop
+            && coordinates.y + elmWidth <= exit.offsetTop + exit.offsetHeight) {
+            return true;
+        }
     }
 }
 
