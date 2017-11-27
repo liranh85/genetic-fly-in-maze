@@ -1,6 +1,5 @@
 import World from './World';
 import Fly from './Fly';
-import { setInterval } from 'timers';
 
 const appSettings = {
     stopOnFirstFlyOut: false
