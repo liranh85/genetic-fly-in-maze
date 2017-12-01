@@ -1,5 +1,6 @@
 import World from './World';
 import Fly from './Fly';
+import GeneticFlyInMaze from './GeneticFlyInMaze';
 
 const appSettings = {
     stopOnFirstFlyOut: false
@@ -17,7 +18,8 @@ const flySettings = {
     width: 25,
     height: 25,
     flightDistance: 15,
-    world: world
+    world: world,
+    interval: 1
 }
 const numFlies = 20;
 
@@ -25,12 +27,18 @@ for (let i = 0; i < numFlies; i++) {
     flies.push(new Fly({
         ...flySettings,
         ... {
-            elmId: `fly${i}`,
-            interval: Math.floor(100 * Math.random())
+            elmId: `fly${i}`
         }
     }));
 }
 
+const promises = [];
+
 flies.forEach((fly) => {
-    fly.autoPilot();
+    promises.push( fly.autoPilot() );
 });
+
+Promise.all(promises).then(trainingData => {
+    const geneticFlyInMaze = new GeneticFlyInMaze;
+    geneticFlyInMaze.solve(trainingData);
+})

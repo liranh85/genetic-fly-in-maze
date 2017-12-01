@@ -12,6 +12,7 @@ class Fly {
         }
         this.flyElm = this._createFlyElement();
         this.isFree = false;
+        this.locationHistory = [];
     }
 
     _createFlyElement() {
@@ -53,13 +54,33 @@ class Fly {
         return 'forward';
     }
 
+    addDirectionToLocationHistory(direction) {
+        switch (direction) {
+            case 'up':
+                this.locationHistory.push(0);
+                break;
+            case 'down':
+                this.locationHistory.push(1);
+                break;
+            default:
+                this.locationHistory.push(2);
+                break;
+        }
+    }
+
     autoPilot() {
-        const auto = setInterval(() => {
-            this.flyTo(this._getRandomDirection());
-            if (this.isFree) {
-                clearInterval(auto);
-            }
-        }, this.interval);
+        return new Promise((resolve, reject) => {
+            const auto = setInterval(() => {
+                const direction = this._getRandomDirection();
+                this.addDirectionToLocationHistory(direction);
+                this.flyTo(direction);
+                if (this.isFree) {
+                    clearInterval(auto);
+                    resolve(this.locationHistory);
+                    // console.log(`Fly ${this.elmId} - location history:`, this.locationHistory);
+                }
+            }, this.interval);
+        });
     }
 
     flyTo(direction) {
