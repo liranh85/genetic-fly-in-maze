@@ -68,16 +68,19 @@ class Fly {
         }
     }
 
-    autoPilot() {
+    autoPilot(directions = null) {
         return new Promise((resolve, reject) => {
             const auto = setInterval(() => {
-                const direction = this._getRandomDirection();
+                const direction = directions ? directions.shift() : this._getRandomDirection();
                 this.addDirectionToLocationHistory(direction);
                 this.flyTo(direction);
                 if (this.isFree) {
                     clearInterval(auto);
                     resolve(this.locationHistory);
                     // console.log(`Fly ${this.elmId} - location history:`, this.locationHistory);
+                }
+                else if (directions && directions.length === 0) {
+                    reject();
                 }
             }, this.interval);
         });
