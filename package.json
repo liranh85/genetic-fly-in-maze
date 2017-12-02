@@ -24,6 +24,6 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
-    "genetic-js": "^0.1.14"
+    "genetic-js": "github:liranh85/genetic-js"
   }
 }

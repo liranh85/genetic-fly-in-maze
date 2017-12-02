@@ -68,18 +68,31 @@ class Fly {
         }
     }
 
+    _parseDirection(direction) {
+        switch(direction) {
+            case 0:
+                return 'up';
+            case 1:
+                return 'down';
+            case 2:
+                return 'right';
+        }
+    }
+
     autoPilot(directions = null) {
         return new Promise((resolve, reject) => {
             const auto = setInterval(() => {
-                const direction = directions ? directions.shift() : this._getRandomDirection();
+                const direction = directions ? this._parseDirection(directions.shift()) : this._getRandomDirection();
                 this.addDirectionToLocationHistory(direction);
                 this.flyTo(direction);
                 if (this.isFree) {
                     clearInterval(auto);
+                    this.flyElm.remove();
                     resolve(this.locationHistory);
                     // console.log(`Fly ${this.elmId} - location history:`, this.locationHistory);
                 }
                 else if (directions && directions.length === 0) {
+                    this.flyElm.remove();
                     reject();
                 }
             }, this.interval);

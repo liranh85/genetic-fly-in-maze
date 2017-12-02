@@ -39,6 +39,6 @@ flies.forEach((fly) => {
 });
 
 Promise.all(promises).then(trainingData => {
-    const geneticFlyInMaze = new GeneticFlyInMaze;
-    geneticFlyInMaze.solve(trainingData);
+    const geneticFlyInMaze = new GeneticFlyInMaze(trainingData);
+    geneticFlyInMaze.solve();
 })

@@ -5,6 +5,7 @@ import Fly from './Fly';
 class GeneticFlyInMaze {
     constructor(trainingData) {
         this.trainingData = trainingData;
+        this.solve = this.solve.bind(this);
     }
 
     solve() {
@@ -49,32 +50,35 @@ class GeneticFlyInMaze {
         };
 
         genetic.fitness = async function(entity) {
-            const fly = new Fly({
+            const fly = new this.userData.Fly({
                 elmId: 'fly1',
-                interval: 0,
+                interval: 10,
                 width: 25,
                 height: 25,
                 flightDistance: 15,
-                world: new World({
-                    width: 600,
-                    height: 350,
-                    elmId: 'maze'
-                })
+                world: this.userData.world
             });
-            const score;
+            let fitness;
 
             try {
                 const locationHistory = await fly.autoPilot(entity);
-                score = locationHistory.length;
+                fitness = locationHistory.length;
             }
-            catch {
-                score = 1000000;
+            catch(e) {
+                fitness = 1000000;
             }
 
-            return score;
+            return fitness;
         };
 
         genetic.generation = (pop, generation, stats) => generation === 10000;
+
+        genetic.notification = function(pop, generation, stats, isFinished) {
+            console.log('pop', pop);
+            console.log('generation', generation);
+            console.log('stats', stats);
+            console.log('isFinished', isFinished);
+        }
 
         const config = {
             iterations: 4000,
@@ -86,7 +90,13 @@ class GeneticFlyInMaze {
 
         const userData = {
             trainingData: this.trainingData.slice(),
-            seedsUsed: 0
+            seedsUsed: 0,
+            Fly: Fly,
+            world: new World({
+                width: 600,
+                height: 350,
+                elmId: 'maze'
+            })
         }
 
 		genetic.evolve(config, userData);
