@@ -8,7 +8,7 @@ class Genetic {
         this.notification = settings.geneticFunctions.notification;
         this.config = settings.config;
         this.userData = settings.userData;
-        this.population = null;
+        this.population = JSON.parse(JSON.stringify(this.userData.trainingData));
     }
 
     async evolve() {
@@ -27,7 +27,7 @@ class Genetic {
             const fittest = this._selectFittestGenes();
             // This will apply both crossover and mutation
             // this.notification(this.population, i, { fitness: [this.population[0].fitness, this.population[1].fitness] }, false);
-            this.notification([this.population[0].fitness, this.population[1].fitness]);
+            this.notification(this.population);
             this._createNewGeneration(fittest);
         }
     }
@@ -35,12 +35,12 @@ class Genetic {
     _initPopulation() {
         // Not implementing seeding for now, as I already have the training data.
         // console.log('_initPopulation() started');
-        this.population = this.userData.trainingData.map((gene) => {
+        this.population = this.population.map((gene) => {
             return {
-                gene: gene.slice(),
+                gene,
                 fitness: null
             };
-        })
+        });
         // console.log('_initPopulation() finished');
         // console.log('population', this.population);
     }
@@ -73,16 +73,23 @@ class Genetic {
             return sort;
         });
         // console.log('Population after sort', this.population);
-        return [this.population[0], this.population[1]];
+        // return [this.population[0], this.population[1]];
     }
 
-    _createNewGeneration(fittest) {
+    _createNewGeneration() {
         // console.log('In _createNewGeneration()');
+        const createAndAddNewborns = (gene1, gene2) => {
+            let newborns = this.crossover(gene1, gene2);
+            newborns[0] = this.mutate(newborns[0], 10);
+            newborns[1] = this.mutate(newborns[1], 10);
+            this.population.push(newborns[0], newborns[1]);
+        };
+
+        this.oldGeneration = JSON.parse(JSON.stringify(this.population))
         this.population = [];
-        for (let i = 0; i < this.config.size; i++) {
-            let newborn = this.crossover(fittest[0].gene, fittest[1].gene);
-            newborn = this.mutate(newborn);
-            this.population.push(newborn);
+        for (let i = 0; i < this.config.size / 4; i++) {
+            createAndAddNewborns(this.oldGeneration[0].gene, this.oldGeneration[1].gene);
+            createAndAddNewborns(this.oldGeneration[2].gene, this.oldGeneration[3].gene);
         }
     }
 }

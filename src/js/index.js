@@ -20,7 +20,7 @@ const flySettings = {
     height: 25,
     flightDistance: 15,
     world: world,
-    interval: 1
+    interval: 0
 }
 const numFlies = 20;
 

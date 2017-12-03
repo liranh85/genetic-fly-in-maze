@@ -18,11 +18,15 @@ class GeneticFlyInMaze {
             return seed;
         };
 
-        const mutate = function(entity) {
+        const mutate = function(entity, iterations) {
             const mutated = entity.slice();
-            const i = Math.floor(Math.random() * entity.length);
-            const plusOrMinusOne = Math.floor(Math.random()*2) ? 1 : -1;
-            mutated[i] = (mutated[i] + plusOrMinusOne) % 3;
+            for(let i = 0; i < iterations; i++) {
+                let index = Math.floor(Math.random() * entity.length);
+                let plusOrMinusOne = Math.floor(Math.random()*2) ? 1 : -1;
+                mutated[index] = (mutated[index] + 3 + plusOrMinusOne) % 3;
+            }
+            // console.log('Before mutation', entity);
+            // console.log('After mutation', mutated);
             return mutated;
         };
 
@@ -37,8 +41,8 @@ class GeneticFlyInMaze {
                 ca = tmp;
             }
 
-            const son = father.slice(0, ca) + mother.slice(ca, cb) + father.slice(cb);
-            const daughter = mother.slice(0, ca) + father.slice(ca, cb) + mother.slice(cb);
+            const son = father.slice(0, ca).concat(mother.slice(ca, cb), father.slice(cb));
+            const daughter = mother.slice(0, ca).concat(father.slice(ca, cb), mother.slice(cb));
 
             return [son, daughter];
         };
@@ -68,12 +72,13 @@ class GeneticFlyInMaze {
         const generation = (pop, generation, stats) => generation === 10000;
 
         // const notification = function(pop, generation, stats, isFinished) {
-        const notification = function(fittest) {
+        const notification = function(population) {
             // console.log('pop', pop);
             // console.log('generation', generation);
             // console.log('stats', stats);
             // console.log('isFinished', isFinished);
-            console.log('fittest', fittest);
+
+            console.log('fitnesses', population.map(individual => individual.fitness));
         };
 
         const settings = {

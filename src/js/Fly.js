@@ -82,7 +82,7 @@ class Fly {
     autoPilot(directions = null) {
         return new Promise((resolve, reject) => {
             const auto = setInterval(() => {
-                const direction = directions ? this._parseDirection(directions.shift()) : this._getRandomDirection();
+                const direction = (directions && directions.length) ? this._parseDirection(directions.shift()) : this._getRandomDirection();
                 this.addDirectionToLocationHistory(direction);
                 this.flyTo(direction);
                 if (this.isFree) {
@@ -91,10 +91,10 @@ class Fly {
                     resolve(this.locationHistory);
                     // console.log(`Fly ${this.elmId} - location history:`, this.locationHistory);
                 }
-                else if (directions && directions.length === 0) {
-                    this.flyElm.remove();
-                    reject();
-                }
+                // else if (directions && directions.length === 0) {
+                //     this.flyElm.remove();
+                //     reject();
+                // }
             }, this.interval);
         });
     }
