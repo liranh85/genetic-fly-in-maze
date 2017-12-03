@@ -1,4 +1,4 @@
-import Genetic from 'genetic-js';
+import Genetic from './Genetic';
 import World from './World';
 import Fly from './Fly';
 
@@ -9,13 +9,7 @@ class GeneticFlyInMaze {
     }
 
     solve() {
-        const genetic = Genetic.create();
-
-        genetic.optimize = Genetic.Optimize.Minimize;
-        genetic.select1 = Genetic.Select1.Tournament2;
-        genetic.select2 = Genetic.Select2.Tournament2;
-
-        genetic.seed = function() {
+        const seed = function() {
             const seed = this.userData.trainingData[this.userData.seedsUsed];
             this.userData.seedsUsed++;
             if (this.userData.seedsUsed >= this.userData.trainingData.length) {
@@ -24,7 +18,7 @@ class GeneticFlyInMaze {
             return seed;
         };
 
-        genetic.mutate = function(entity) {
+        const mutate = function(entity) {
             const mutated = entity.slice();
             const i = Math.floor(Math.random() * entity.length);
             const plusOrMinusOne = Math.floor(Math.random()*2) ? 1 : -1;
@@ -32,7 +26,7 @@ class GeneticFlyInMaze {
             return mutated;
         };
 
-        genetic.crossover = function(mother, father) {
+        const crossover = function(mother, father) {
             // two-point crossover
             const len = mother.length;
             let ca = Math.floor(Math.random()*len);
@@ -49,9 +43,9 @@ class GeneticFlyInMaze {
             return [son, daughter];
         };
 
-        genetic.fitness = async function(entity) {
+        const fitness = async function(entity, entityId = 0) {
             const fly = new this.userData.Fly({
-                elmId: 'fly1',
+                elmId: `fly${entityId}`,
                 interval: 10,
                 width: 25,
                 height: 25,
@@ -61,7 +55,7 @@ class GeneticFlyInMaze {
             let fitness;
 
             try {
-                const locationHistory = await fly.autoPilot(entity);
+                const locationHistory = await fly.autoPilot(entity.slice());
                 fitness = locationHistory.length;
             }
             catch(e) {
@@ -71,35 +65,49 @@ class GeneticFlyInMaze {
             return fitness;
         };
 
-        genetic.generation = (pop, generation, stats) => generation === 10000;
+        const generation = (pop, generation, stats) => generation === 10000;
 
-        genetic.notification = function(pop, generation, stats, isFinished) {
-            console.log('pop', pop);
-            console.log('generation', generation);
-            console.log('stats', stats);
-            console.log('isFinished', isFinished);
-        }
-
-        const config = {
-            iterations: 4000,
-            size: this.trainingData.length,
-            crossover: 0.3,
-            mutation: 0.3,
-            skip: 20
+        // const notification = function(pop, generation, stats, isFinished) {
+        const notification = function(fittest) {
+            // console.log('pop', pop);
+            // console.log('generation', generation);
+            // console.log('stats', stats);
+            // console.log('isFinished', isFinished);
+            console.log('fittest', fittest);
         };
 
-        const userData = {
-            trainingData: this.trainingData.slice(),
-            seedsUsed: 0,
-            Fly: Fly,
-            world: new World({
-                width: 600,
-                height: 350,
-                elmId: 'maze'
-            })
-        }
+        const settings = {
+            geneticFunctions: {
+                seed,
+                mutate,
+                crossover,
+                fitness,
+                generation,
+                notification
+            },
+            config: {
+                iterations: 100,
+                size: this.trainingData.length,
+                crossover: 0.3,
+                mutation: 0.3,
+                skip: 20,
+                optimise: 'min',
+            },
+            userData: {
+                trainingData: this.trainingData.slice(),
+                seedsUsed: 0,
+                Fly: Fly,
+                world: new World({
+                    width: 600,
+                    height: 350,
+                    elmId: 'maze'
+                })
+            }
+        };
 
-		genetic.evolve(config, userData);
+        const genetic = new Genetic(settings);
+
+		genetic.evolve();
     }
 }
 

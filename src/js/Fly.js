@@ -75,7 +75,7 @@ class Fly {
             case 1:
                 return 'down';
             case 2:
-                return 'right';
+                return 'forward';
         }
     }
 
