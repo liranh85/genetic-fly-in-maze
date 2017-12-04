@@ -8,13 +8,23 @@ class Genetic {
         this.notification = settings.geneticFunctions.notification;
         this.config = settings.config;
         this.userData = settings.userData;
-        this.population = JSON.parse(JSON.stringify(this.userData.trainingData));
+        this.population = this._clone(this.userData.trainingData);
+        this.currentGeneration;
+        this._init();
+    }
+
+    _init() {
+        if (!this.config.numberOfFittestToSelect) {
+            // Default value is 2 if not set
+            this.config.numberOfFittestToSelect = 2;
+        } else if (this.config.numberOfFittestToSelect % 2 !== 0) {
+            // Must be an even number
+            this.config.numberOfFittestToSelect++;
+        }
     }
 
     async evolve() {
-        // TO DO: Loop around these
-        for (let i = 0; i < this.config.iterations; i++) {
-            // console.log('Training data', this.userData.trainingData);
+        for (this.currentGeneration = 0; this.currentGeneration < this.config.iterations; this.currentGeneration++) {
             this._initPopulation();
 
             try {
@@ -24,47 +34,48 @@ class Genetic {
                 console.error(e);
                 return;
             }
-            const fittest = this._selectFittestGenes();
+            if (this.config.killTheWeak) {
+                this._killTheWeak();
+            }
+            this._sortGenesByFittest();
+            this.notification(this.stats());
             // This will apply both crossover and mutation
-            // this.notification(this.population, i, { fitness: [this.population[0].fitness, this.population[1].fitness] }, false);
-            this.notification(this.population);
-            this._createNewGeneration(fittest);
+            this._createNewGeneration();
         }
     }
 
     _initPopulation() {
         // Not implementing seeding for now, as I already have the training data.
-        // console.log('_initPopulation() started');
         this.population = this.population.map((gene) => {
             return {
                 gene,
-                fitness: null
+                fitness: this.config.initialFitness
             };
         });
-        // console.log('_initPopulation() finished');
-        // console.log('population', this.population);
     }
 
     _computePopulationFitness() {
-        // console.log('_computePopulationFitness() started');
-        // console.log('population', this.population);
+        let resolvedPromisesNum = 0;
         return new Promise((resolve, reject) => {
-            const fitnessPromises = this.population.map((individual, i) => {
-                return this.fitness(individual.gene, i);
-            });
-            Promise.all(fitnessPromises).then((fitnesses) => {
-                fitnesses.forEach((fitness, i) => {
-                    this.population[i].fitness = fitness;
+            this.population.forEach((individual, i) => {
+                this.fitness(individual.gene, i).then((response) => {
+                    individual.fitness = response;
+                    resolvedPromisesNum++;
+                    if ((this.config.killTheWeak && resolvedPromisesNum === this.config.numberOfFittestToSelect) || resolvedPromisesNum === this.population.length) {
+                        resolve();
+                    }
                 });
-                // console.log('_computePopulationFitness() finised');
-                // console.log('population', this.population);
-                resolve();
-            })
+            });
         });
     }
 
-    _selectFittestGenes() {
-        // console.log('In _selectFittestGenes()');
+    _killTheWeak() {
+        for (let i = 0; i < this.population.length; i++) {
+            document.getElementById(i) && document.getElementById(i).dispatchEvent(new CustomEvent('fittest-found'));
+        }
+    }
+
+    _sortGenesByFittest() {
         this.population.sort((a, b) => {
             let sort = b.fitness - a.fitness;
             if (this.config.optimise === 'min') {
@@ -72,24 +83,42 @@ class Genetic {
             }
             return sort;
         });
-        // console.log('Population after sort', this.population);
-        // return [this.population[0], this.population[1]];
     }
 
     _createNewGeneration() {
-        // console.log('In _createNewGeneration()');
         const createAndAddNewborns = (gene1, gene2) => {
             let newborns = this.crossover(gene1, gene2);
-            newborns[0] = this.mutate(newborns[0], 10);
-            newborns[1] = this.mutate(newborns[1], 10);
+            newborns[0] = this.mutate(newborns[0], this.config.mutationIterations);
+            newborns[1] = this.mutate(newborns[1], this.config.mutationIterations);
             this.population.push(newborns[0], newborns[1]);
         };
 
-        this.oldGeneration = JSON.parse(JSON.stringify(this.population))
+        this.oldGeneration = this._clone(this.population);
         this.population = [];
-        for (let i = 0; i < this.config.size / 4; i++) {
-            createAndAddNewborns(this.oldGeneration[0].gene, this.oldGeneration[1].gene);
-            createAndAddNewborns(this.oldGeneration[2].gene, this.oldGeneration[3].gene);
+        for (let i = 0; i < this.config.size / this.config.numberOfFittestToSelect; i++) {
+            for (let j = 0; j < this.config.numberOfFittestToSelect; j+= this.config.numberOfFittestToSelect / 2) {
+                createAndAddNewborns(this.oldGeneration[j].gene, this.oldGeneration[j + 1].gene);
+            }
+        }
+    }
+
+    _clone(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
+    meanFitness() {
+        const fittest = this.population.slice(0, this.config.numberOfFittestToSelect);
+        return fittest.reduce((accumulator, currentValue) => {
+            return accumulator + currentValue.fitness;
+        }, 0) / fittest.length;
+    }
+
+    stats() {
+        return {
+            population: this._clone(this.population),
+            generation: this.currentGeneration,
+            mean: this.meanFitness(),
+            isFinished: this.currentGeneration === this.config.iterations
         }
     }
 }

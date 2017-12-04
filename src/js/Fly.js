@@ -13,6 +13,8 @@ class Fly {
         this.flyElm = this._createFlyElement();
         this.isFree = false;
         this.locationHistory = [];
+        this.autoPilotInterval = null;
+        this.autoPilotPromise = null;
     }
 
     _createFlyElement() {
@@ -54,7 +56,7 @@ class Fly {
         return 'forward';
     }
 
-    addDirectionToLocationHistory(direction) {
+    _addDirectionToLocationHistory(direction) {
         switch (direction) {
             case 'up':
                 this.locationHistory.push(0);
@@ -79,24 +81,31 @@ class Fly {
         }
     }
 
+    _fittestFoundHandler() {
+        clearInterval(this.autoPilotInterval);
+        this.flyElm.removeEventListener('fittest-found', this._fittestFoundHandler);
+        this.flyElm.remove();
+        this.autoPilotPromise.reject && this.autoPilotPromise.reject();
+    };
+
     autoPilot(directions = null) {
-        return new Promise((resolve, reject) => {
-            const auto = setInterval(() => {
+        this.flyElm.addEventListener('fittest-found', this._fittestFoundHandler.bind(this));
+
+        this.autoPilotPromise = new Promise((resolve, reject) => {
+            this.autoPilotInterval = setInterval(() => {
                 const direction = (directions && directions.length) ? this._parseDirection(directions.shift()) : this._getRandomDirection();
-                this.addDirectionToLocationHistory(direction);
+                this._addDirectionToLocationHistory(direction);
                 this.flyTo(direction);
                 if (this.isFree) {
-                    clearInterval(auto);
+                    clearInterval(this.autoPilotInterval);
+                    this.flyElm.removeEventListener('fittest-found', this._fittestFoundHandler);
                     this.flyElm.remove();
                     resolve(this.locationHistory);
-                    // console.log(`Fly ${this.elmId} - location history:`, this.locationHistory);
                 }
-                // else if (directions && directions.length === 0) {
-                //     this.flyElm.remove();
-                //     reject();
-                // }
             }, this.interval);
         });
+
+        return this.autoPilotPromise;
     }
 
     flyTo(direction) {

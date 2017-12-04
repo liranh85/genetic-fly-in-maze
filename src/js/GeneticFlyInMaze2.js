@@ -18,15 +18,13 @@ class GeneticFlyInMaze {
             return seed;
         };
 
-        const mutate = function(entity, iterations) {
+        const mutate = function(entity, iterations = 1) {
             const mutated = entity.slice();
             for(let i = 0; i < iterations; i++) {
                 let index = Math.floor(Math.random() * entity.length);
                 let plusOrMinusOne = Math.floor(Math.random()*2) ? 1 : -1;
                 mutated[index] = (mutated[index] + 3 + plusOrMinusOne) % 3;
             }
-            // console.log('Before mutation', entity);
-            // console.log('After mutation', mutated);
             return mutated;
         };
 
@@ -49,8 +47,8 @@ class GeneticFlyInMaze {
 
         const fitness = async function(entity, entityId = 0) {
             const fly = new this.userData.Fly({
-                elmId: `fly${entityId}`,
-                interval: 10,
+                elmId: entityId,
+                interval: 0,
                 width: 25,
                 height: 25,
                 flightDistance: 15,
@@ -65,20 +63,15 @@ class GeneticFlyInMaze {
             catch(e) {
                 fitness = 1000000;
             }
-
             return fitness;
         };
 
         const generation = (pop, generation, stats) => generation === 10000;
 
         // const notification = function(pop, generation, stats, isFinished) {
-        const notification = function(population) {
-            // console.log('pop', pop);
-            // console.log('generation', generation);
-            // console.log('stats', stats);
-            // console.log('isFinished', isFinished);
-
-            console.log('fitnesses', population.map(individual => individual.fitness));
+        const notification = function(stats) {
+            console.log(`Generation ${stats.generation} fitnesses`, stats.population.map(individual => individual.fitness));
+            console.log('Mean', stats.mean);
         };
 
         const settings = {
@@ -91,12 +84,15 @@ class GeneticFlyInMaze {
                 notification
             },
             config: {
-                iterations: 100,
+                iterations: 1000,
                 size: this.trainingData.length,
                 crossover: 0.3,
-                mutation: 0.3,
+                mutationIterations: 15,
                 skip: 20,
                 optimise: 'min',
+                initialFitness: 10000,
+                numberOfFittestToSelect: 3,
+                killTheWeak: true
             },
             userData: {
                 trainingData: this.trainingData.slice(),
