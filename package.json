@@ -1,5 +1,5 @@
 {
-  "name": "js-start",
+  "name": "genetic-fly-in-maze",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,7 +7,7 @@
     "start": "gulp",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Liran, Mate and Binu",
+  "author": "Liran",
   "license": "ISC",
   "devDependencies": {
     "babel-plugin-transform-async-functions": "^6.22.0",
@@ -20,7 +20,6 @@
     "gulp": "^3.9.1",
     "gulp-connect": "^5.0.0",
     "gulp-sass": "^3.0.0",
-    "jquery": "^3.2.1",
     "vinyl-source-stream": "^1.1.0"
   }
 }
