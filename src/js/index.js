@@ -1,6 +1,6 @@
 import World from './World';
 import Fly from './Fly';
-import GeneticFlyInMaze2 from './GeneticFlyInMaze2';
+import GeneticFlyInMaze from './GeneticFlyInMaze';
 
 const appSettings = {
     stopOnFirstFlyOut: false
@@ -39,6 +39,6 @@ flies.forEach((fly) => {
 });
 
 Promise.all(promises).then(trainingData => {
-    const geneticFlyInMaze2 = new GeneticFlyInMaze2(trainingData);
-    geneticFlyInMaze2.solve();
+    const geneticFlyInMaze = new GeneticFlyInMaze(trainingData);
+    geneticFlyInMaze.solve();
 })
