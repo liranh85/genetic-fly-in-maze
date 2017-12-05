@@ -14,7 +14,6 @@ const world = new World({
 
 const flies = [];
 const flySettings = {
-    // interval: 500,
     width: 25,
     height: 25,
     flightDistance: 15,

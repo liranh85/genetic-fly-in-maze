@@ -11,8 +11,7 @@ class GeneticFlyInMaze {
     solve() {
         const seed = function() {
             const seed = this.userData.trainingData[this.userData.seedsUsed];
-            this.userData.seedsUsed++;
-            if (this.userData.seedsUsed >= this.userData.trainingData.length) {
+            if (++this.userData.seedsUsed >= this.userData.trainingData.length) {
                 this.userData.seedsUsed = 0;
             }
             return seed;
@@ -48,7 +47,7 @@ class GeneticFlyInMaze {
         const fitness = async function(entity, entityId = 0) {
             const fly = new this.userData.Fly({
                 elmId: entityId,
-                interval: 0,
+                interval: this.userData.interval,
                 width: 25,
                 height: 25,
                 flightDistance: 15,
@@ -71,10 +70,23 @@ class GeneticFlyInMaze {
         // const notification = function(pop, generation, stats, isFinished) {
         const notification = function(stats) {
             console.log(`Generation ${stats.generation} fitnesses`, stats.population.map(individual => individual.fitness));
-            console.log('Mean', stats.mean);
+            console.log(`Mean: ${stats.mean}, Fitness record: ${stats.fittestEver.fitness}`);
         };
 
+        const addEventListeners = function() {
+            document.getElementById('slow-down').addEventListener('click', () => {
+                this.userData.interval += 10;
+            });
+            document.getElementById('speed-up').addEventListener('click', () => {
+                this.userData.interval = this.userData.interval - 10 || 0;
+            });
+            document.getElementById('reset-speed').addEventListener('click', () => {
+                this.userData.interval = this.userData.defaultInterval;
+            });
+        }
+
         const settings = {
+            initFunction: addEventListeners,
             geneticFunctions: {
                 seed,
                 mutate,
@@ -86,12 +98,12 @@ class GeneticFlyInMaze {
             config: {
                 iterations: 1000,
                 size: this.trainingData.length,
-                crossover: 0.3,
-                mutationIterations: 15,
-                skip: 20,
+                // crossover: 0.3,
+                mutationIterations: 5,
+                // skip: 20,
                 optimise: 'min',
                 initialFitness: 10000,
-                numberOfFittestToSelect: 3,
+                numberOfFittestToSelect: 4,
                 killTheWeak: true
             },
             userData: {
@@ -102,7 +114,9 @@ class GeneticFlyInMaze {
                     width: 600,
                     height: 350,
                     elmId: 'maze'
-                })
+                }),
+                interval: 0,
+                defaultInterval: 0
             }
         };
 

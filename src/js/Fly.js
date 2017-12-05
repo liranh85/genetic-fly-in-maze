@@ -2,6 +2,7 @@ class Fly {
     constructor(settings) {
         this.elmId = settings.elmId;
         this.interval = settings.interval;
+        this.defaultInterval = settings.interval;
         this.width = settings.width;
         this.height = settings.height;
         this.flightDistance = settings.flightDistance;
@@ -10,22 +11,56 @@ class Fly {
             x: 0,
             y: 0
         }
-        this.flyElm = this._createFlyElement();
+        this.flyElm;
         this.isFree = false;
         this.locationHistory = [];
         this.autoPilotInterval = null;
         this.autoPilotPromise = null;
+        this.transitionDurationUnit = 'ms';
+        this.keepAutoPilotIntervalRunning = true;
+        this._init();
+    }
+
+    _init() {
+        this._createFlyElement();
+        document.getElementById('slow-down').addEventListener('click', () => {
+            this._lowerSpeed();
+        });
+        document.getElementById('speed-up').addEventListener('click', () => {
+            this._increaseSpeed();
+        });
+        document.getElementById('reset-speed').addEventListener('click', () => {
+            this._resetSpeed();
+        });
+    }
+
+    _lowerSpeed() {
+        this.interval += 10;
+        this._setTransitionDuration();
+    }
+
+    _increaseSpeed() {
+        this.interval = this.interval - 10 || 0;
+        this._setTransitionDuration();
+    }
+
+    _resetSpeed() {
+        this.interval = this.defaultInterval;
+        this._setTransitionDuration();
+    }
+
+    _setTransitionDuration() {
+        this.flyElm.style.transitionDuration = `${this.interval}${this.transitionDurationUnit}`;
     }
 
     _createFlyElement() {
-        const flyElm = document.createElement('div');
-        flyElm.id = this.elmId;
-        flyElm.setAttribute('class', 'fly');
-        flyElm.style.width = `${this.width}px`;
-        flyElm.style.height = `${this.height}px`;
-        flyElm.style.transitionDuration = `${this.interval}ms`;
-        this.world.worldElm.appendChild(flyElm);
-        return flyElm;
+        this.flyElm = document.createElement('div');
+        this.flyElm.id = this.elmId;
+        this.flyElm.setAttribute('class', 'fly');
+        this.flyElm.style.width = `${this.width}px`;
+        this.flyElm.style.height = `${this.height}px`;
+        this._setTransitionDuration();
+        this.world.worldElm.appendChild(this.flyElm);
     }
     
     _getNewCoordinates(direction) {
@@ -82,7 +117,7 @@ class Fly {
     }
 
     _fittestFoundHandler() {
-        clearInterval(this.autoPilotInterval);
+        this.keepAutoPilotIntervalRunning = false;
         this.flyElm.removeEventListener('fittest-found', this._fittestFoundHandler);
         this.flyElm.remove();
         this.autoPilotPromise.reject && this.autoPilotPromise.reject();
@@ -92,17 +127,23 @@ class Fly {
         this.flyElm.addEventListener('fittest-found', this._fittestFoundHandler.bind(this));
 
         this.autoPilotPromise = new Promise((resolve, reject) => {
-            this.autoPilotInterval = setInterval(() => {
+            const autoPilotInterval = () => {
                 const direction = (directions && directions.length) ? this._parseDirection(directions.shift()) : this._getRandomDirection();
                 this._addDirectionToLocationHistory(direction);
                 this.flyTo(direction);
                 if (this.isFree) {
-                    clearInterval(this.autoPilotInterval);
+                    this.keepAutoPilotIntervalRunning = false;
                     this.flyElm.removeEventListener('fittest-found', this._fittestFoundHandler);
                     this.flyElm.remove();
                     resolve(this.locationHistory);
                 }
-            }, this.interval);
+
+                if (this.keepAutoPilotIntervalRunning) {
+                    window.setTimeout(autoPilotInterval, this.interval);
+                }
+            }
+
+            autoPilotInterval();
         });
 
         return this.autoPilotPromise;

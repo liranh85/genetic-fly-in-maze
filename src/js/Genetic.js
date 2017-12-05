@@ -1,5 +1,6 @@
 class Genetic {
     constructor(settings) {
+        this.initFunction = settings.initFunction;
         this.seed = settings.geneticFunctions.seed;
         this.mutate = settings.geneticFunctions.mutate;
         this.crossover = settings.geneticFunctions.crossover;
@@ -8,18 +9,33 @@ class Genetic {
         this.notification = settings.geneticFunctions.notification;
         this.config = settings.config;
         this.userData = settings.userData;
-        this.population = this._clone(this.userData.trainingData);
+        this.population = [];
         this.currentGeneration;
+        this.fittestGeneEver = null;
         this._init();
     }
 
     _init() {
+        this._initNumFittestToSelect();
+        if (this.initFunction) {
+            this.initFunction();
+        }
+        this._createFirstGeneration();
+    }
+
+    _initNumFittestToSelect() {
         if (!this.config.numberOfFittestToSelect) {
             // Default value is 2 if not set
             this.config.numberOfFittestToSelect = 2;
         } else if (this.config.numberOfFittestToSelect % 2 !== 0) {
             // Must be an even number
             this.config.numberOfFittestToSelect++;
+        }
+    }
+
+    _createFirstGeneration() {
+        for (let i = 0; i < this.config.size; i++) {
+            this.population.push(this.seed());
         }
     }
 
@@ -38,6 +54,7 @@ class Genetic {
                 this._killTheWeak();
             }
             this._sortGenesByFittest();
+            this._updateFitnessRecord();
             this.notification(this.stats());
             // This will apply both crossover and mutation
             this._createNewGeneration();
@@ -85,6 +102,20 @@ class Genetic {
         });
     }
 
+    _updateFitnessRecord() {
+        const aIsFitterThanB = (a, b) => {
+            return this.config.optimise === 'max' ?
+                a > b :
+                a < b;
+
+        };
+
+        const fittestGeneInThisGeneration = this.population[0];
+        if (this.fittestGeneEver === null || aIsFitterThanB(fittestGeneInThisGeneration.fitness, this.fittestGeneEver.fitness) ) {
+            this.fittestGeneEver = this._clone(fittestGeneInThisGeneration);
+        }
+    }
+
     _createNewGeneration() {
         const createAndAddNewborns = (gene1, gene2) => {
             let newborns = this.crossover(gene1, gene2);
@@ -106,7 +137,7 @@ class Genetic {
         return JSON.parse(JSON.stringify(obj));
     }
 
-    meanFitness() {
+    getMeanFitness() {
         const fittest = this.population.slice(0, this.config.numberOfFittestToSelect);
         return fittest.reduce((accumulator, currentValue) => {
             return accumulator + currentValue.fitness;
@@ -117,7 +148,8 @@ class Genetic {
         return {
             population: this._clone(this.population),
             generation: this.currentGeneration,
-            mean: this.meanFitness(),
+            mean: this.getMeanFitness(),
+            fittestEver: this.fittestGeneEver,
             isFinished: this.currentGeneration === this.config.iterations
         }
     }
