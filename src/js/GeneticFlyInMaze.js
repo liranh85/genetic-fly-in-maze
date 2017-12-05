@@ -69,8 +69,21 @@ class GeneticFlyInMaze {
 
         // const notification = function(pop, generation, stats, isFinished) {
         const notification = function(stats) {
-            console.log(`Generation ${stats.generation} fitnesses`, stats.population.map(individual => individual.fitness));
-            console.log(`Mean: ${stats.mean}, Fitness record: ${stats.fittestEver.fitness}`);
+            const headerRow = document.getElementById('header-row')
+            const row = document.createElement('tr');
+            const generationCell = document.createElement('td');
+            generationCell.innerHTML = stats.generation;
+            const meanCell = document.createElement('td');
+            meanCell.innerHTML = stats.mean;
+            const fitnessesCell = document.createElement('td');
+            stats.population.forEach((individual) => {
+                fitnessesCell.innerHTML += individual.fitness + ', ';
+            });
+            row.appendChild(generationCell);
+            row.appendChild(meanCell);
+            row.appendChild(fitnessesCell);
+            headerRow.parentNode.insertBefore(row, headerRow.nextSibling);
+            document.getElementById('fittest-ever').innerHTML = stats.fittestEver.fitness;
         };
 
         const addEventListeners = function() {
@@ -98,11 +111,10 @@ class GeneticFlyInMaze {
             config: {
                 iterations: 1000,
                 size: this.trainingData.length,
-                // crossover: 0.3,
                 mutationIterations: 5,
-                // skip: 20,
+                skip: 0,
                 optimise: 'min',
-                initialFitness: 10000,
+                initialFitness: 1111,
                 numberOfFittestToSelect: 4,
                 killTheWeak: true
             },

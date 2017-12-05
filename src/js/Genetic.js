@@ -55,7 +55,9 @@ class Genetic {
             }
             this._sortGenesByFittest();
             this._updateFitnessRecord();
-            this.notification(this.stats());
+            if (this.config.skip === 0 || this.currentGeneration % this.config.skip === 0) {
+                this.notification(this.stats());
+            }
             // This will apply both crossover and mutation
             this._createNewGeneration();
         }
@@ -127,7 +129,7 @@ class Genetic {
         this.oldGeneration = this._clone(this.population);
         this.population = [];
         for (let i = 0; i < this.config.size / this.config.numberOfFittestToSelect; i++) {
-            for (let j = 0; j < this.config.numberOfFittestToSelect; j+= this.config.numberOfFittestToSelect / 2) {
+            for (let j = 0; j < this.config.numberOfFittestToSelect; j += 2) {
                 createAndAddNewborns(this.oldGeneration[j].gene, this.oldGeneration[j + 1].gene);
             }
         }
