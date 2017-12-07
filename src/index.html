@@ -7,7 +7,7 @@
 
 </head>
 <body>
-	<div id="maze" class="maze">
+	<div id="maze" class="maze container">
 		<div class="obstacle obstacle1"></div>
 		<div class="obstacle obstacle1a"></div>
 		<div class="obstacle obstacle2"></div>
@@ -17,20 +17,22 @@
 		<div class="obstacle obstacle4"></div>
 		<div id="exit" class="exit"></div>
 	</div>
-	<div class="controls">
-		<p>Speed</p>
-		<button id="slow-down">-</button>
-		<button id="reset-speed">Reset</button>
-		<button id="speed-up">+</button>
+	<div class="controls-and-extra-info container">
+		<div class="controls">
+			<p>Speed</p>
+			<button id="slow-down">-</button>
+			<button id="reset-speed">Reset</button>
+			<button id="speed-up">+</button>
+		</div>
+		<div class="extra-info">
+			<div>Fittest ever: <span id="fittest-ever"></span></div>
+			<div id="fittest-ever"></div>
+		</div>
 	</div>
-	<div class="extra-info">
-		<div>Fittest ever: <span id="fittest-ever"></span></div>
-		<div id="fittest-ever"></div>
-	</div>
-	<div class="table-wrapper">
-		<table>
-			<tr id="header-row">
-				<th>Generation</th>
+	<div class="generation-table">
+		<table class="container">
+			<tr id="generation-table-header-row">
+				<th>Gen</th>
 				<th>Mean</th>
 				<th>Fitnesses</th>
 			</tr>

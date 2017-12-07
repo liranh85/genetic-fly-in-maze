@@ -69,20 +69,27 @@ class GeneticFlyInMaze {
 
         // const notification = function(pop, generation, stats, isFinished) {
         const notification = function(stats) {
-            const headerRow = document.getElementById('header-row')
+            const generationTableHeaderRow = document.getElementById('generation-table-header-row')
             const row = document.createElement('tr');
             const generationCell = document.createElement('td');
             generationCell.innerHTML = stats.generation;
             const meanCell = document.createElement('td');
             meanCell.innerHTML = stats.mean;
             const fitnessesCell = document.createElement('td');
-            stats.population.forEach((individual) => {
-                fitnessesCell.innerHTML += individual.fitness + ', ';
+            stats.population.forEach((individual, i) => {
+                const fitness = individual.fitness === this.config.initialFitness ?
+                    'X' :
+                    individual.fitness;
+                const fitnessHTML = i < this.config.numberOfFittestToSelect ?
+                `, <strong>${fitness}</strong>` :
+                `, ${fitness}`;
+                fitnessesCell.innerHTML += fitnessHTML;
             });
+            fitnessesCell.innerHTML = fitnessesCell.innerHTML.substring(2);
             row.appendChild(generationCell);
             row.appendChild(meanCell);
             row.appendChild(fitnessesCell);
-            headerRow.parentNode.insertBefore(row, headerRow.nextSibling);
+            generationTableHeaderRow.parentNode.insertBefore(row, generationTableHeaderRow.nextSibling);
             document.getElementById('fittest-ever').innerHTML = stats.fittestEver.fitness;
         };
 

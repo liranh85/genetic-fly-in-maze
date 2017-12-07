@@ -1,9 +1,26 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700');
+
+* {
+	box-sizing: border-box;
+}
+
+body, button {
+	font-family: 'Open Sans', sans-serif;
+}
+
+body {
+	padding: 10px;
+}
+
+.container {
+	width: 600px;
+	max-width: 90%;
+}
+
 .maze {
 	border: 5px solid black;
-	width: 600px;
 	height: 350px;
 	position: relative;
-	margin: auto;
 
 	.obstacle {
 		position: absolute;
@@ -68,23 +85,72 @@
 	}
 }
 
+.controls-and-extra-info {
+	margin: 25px 0;
+}
+
 .controls,
 .extra-info {
-	// text-align: center;
 	margin-left: 10px;
 	display: inline-block;
 }
 
-.table-wrapper {
-	margin-top: 30px;
+.controls {
+	text-align: center;
+
+	p {
+		margin: 5px;
+	}
+
+	button {
+		font-size: 15px;
+		font-weight: 500;
+	}
+}
+
+.generation-table {
 	height: calc(100vh - 500px);
 	min-height: 200px;
-	border: 1px solid black;
 	overflow: scroll;
 
 	table {
+		border-collapse: collapse;
+
+		tr {
+			&:nth-child(2n + 1) {
+				background-color: rgb(165, 224, 195);
+			}
+		}
+
+		&,
+		th,
+		td {
+			border: 1px solid black;
+		}
+
+		th,
+		td {
+			padding: 10px;
+
+			&:last-child {
+				text-align: left;
+				padding-left: 25px;
+			}
+		}
+
+		th {
+			background-color: #777;
+			color: white;
+			font-weight: 600;
+		}
+
 		td {
 			text-align: center;
+			font-size: 15px;
+		}
+
+		strong {
+			font-weight: 700;
 		}
 	}
 }
