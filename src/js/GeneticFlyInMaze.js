@@ -65,8 +65,6 @@ class GeneticFlyInMaze {
             return fitness;
         };
 
-        const generation = (pop, generation, stats) => generation === 10000;
-
         const notification = function(stats) {
             const generationTableHeaderRow = document.getElementById('generation-table-header-row');
             const row = document.createElement('tr');
@@ -75,10 +73,10 @@ class GeneticFlyInMaze {
             const meanCell = document.createElement('td');
             meanCell.innerHTML = stats.mean;
             const fitnessesCell = document.createElement('td');
-            stats.population.forEach((individual, i) => {
-                const fitness = individual.fitness === this.config.initialFitness ?
+            stats.population.forEach((entity, i) => {
+                const fitness = entity.fitness === this.config.initialFitness ?
                     'X' :
-                    individual.fitness;
+                    entity.fitness;
                 const fitnessHTML = i < this.config.numberOfFittestToSelect ?
                 `, <strong>${fitness}</strong>` :
                 `, ${fitness}`;
@@ -124,7 +122,6 @@ class GeneticFlyInMaze {
                 mutate,
                 crossover,
                 fitness,
-                generation,
                 notification
             },
             config: {

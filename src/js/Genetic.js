@@ -5,13 +5,12 @@ class Genetic {
         this.mutate = settings.geneticFunctions.mutate;
         this.crossover = settings.geneticFunctions.crossover;
         this.fitness = settings.geneticFunctions.fitness;
-        this.generation = settings.geneticFunctions.generation;
         this.notification = settings.geneticFunctions.notification;
         this.config = settings.config;
         this.userData = settings.userData;
         this.population = [];
         this.currentGeneration;
-        this.fittestGeneEver = null;
+        this.fittestEntityEver = null;
         this._init();
     }
 
@@ -35,14 +34,15 @@ class Genetic {
 
     _createFirstGeneration() {
         for (let i = 0; i < this.config.size; i++) {
-            this.population.push(this.seed());
+            this.population.push({
+                DNA: this.seed(),
+                fitness: this.config.initialFitness
+            });
         }
     }
 
     async evolve() {
         for (this.currentGeneration = 0; this.currentGeneration < this.config.iterations; this.currentGeneration++) {
-            this._initPopulation();
-
             try {
                 await this._computePopulationFitness();
             }
@@ -53,7 +53,7 @@ class Genetic {
             if (this.config.killTheWeak) {
                 this._killTheWeak();
             }
-            this._sortGenesByFittest();
+            this._sortEntitiesByFittest();
             this._updateFitnessRecord();
             if (this.config.skip === 0 || this.currentGeneration % this.config.skip === 0) {
                 this.notification(this.stats());
@@ -63,22 +63,12 @@ class Genetic {
         }
     }
 
-    _initPopulation() {
-        // Not implementing seeding for now, as I already have the training data.
-        this.population = this.population.map((gene) => {
-            return {
-                gene,
-                fitness: this.config.initialFitness
-            };
-        });
-    }
-
     _computePopulationFitness() {
         let resolvedPromisesNum = 0;
         return new Promise((resolve, reject) => {
-            this.population.forEach((individual, i) => {
-                this.fitness(individual.gene, i).then((response) => {
-                    individual.fitness = response;
+            this.population.forEach((entity, i) => {
+                this.fitness(entity.DNA, i).then((response) => {
+                    entity.fitness = response;
                     resolvedPromisesNum++;
                     if ((this.config.killTheWeak && resolvedPromisesNum === this.config.numberOfFittestToSelect) || resolvedPromisesNum === this.population.length) {
                         resolve();
@@ -94,7 +84,7 @@ class Genetic {
         }
     }
 
-    _sortGenesByFittest() {
+    _sortEntitiesByFittest() {
         this.population.sort((a, b) => {
             let sort = b.fitness - a.fitness;
             if (this.config.optimise === 'min') {
@@ -111,26 +101,31 @@ class Genetic {
                 a < b;
         };
 
-        const fittestGeneInThisGeneration = this.population[0];
-        if (this.fittestGeneEver === null || aIsFitterThanB(fittestGeneInThisGeneration.fitness, this.fittestGeneEver.fitness) ) {
-            this.fittestGeneEver = this._clone(fittestGeneInThisGeneration);
-            this.fittestGeneEver.generation = this.currentGeneration;
+        const fittestEntityInThisGeneration = this.population[0];
+        if (this.fittestEntityEver === null || aIsFitterThanB(fittestEntityInThisGeneration.fitness, this.fittestEntityEver.fitness) ) {
+            this.fittestEntityEver = this._clone(fittestEntityInThisGeneration);
+            this.fittestEntityEver.generation = this.currentGeneration;
         }
     }
 
     _createNewGeneration() {
-        const createAndAddNewborns = (gene1, gene2) => {
-            let newborns = this.crossover(gene1, gene2);
-            newborns[0] = this.mutate(newborns[0], this.config.mutationIterations);
-            newborns[1] = this.mutate(newborns[1], this.config.mutationIterations);
-            this.population.push(newborns[0], newborns[1]);
+        const createMutateAndAddNewborns = (DNA1, DNA2) => {
+            let newbornsDNAs = this.crossover(DNA1, DNA2);
+            newbornsDNAs[0] = this.mutate(newbornsDNAs[0], this.config.mutationIterations);
+            newbornsDNAs[1] = this.mutate(newbornsDNAs[1], this.config.mutationIterations);
+            this.population = this.population.concat(newbornsDNAs.map((newbornDNA) => {
+                return {
+                    DNA: this._clone(newbornDNA),
+                    fitness: this.config.initialFitness
+                }
+            }));
         };
 
         this.oldGeneration = this._clone(this.population);
         this.population = [];
         for (let i = 0; i < this.config.size / this.config.numberOfFittestToSelect; i++) {
             for (let j = 0; j < this.config.numberOfFittestToSelect; j += 2) {
-                createAndAddNewborns(this.oldGeneration[j].gene, this.oldGeneration[j + 1].gene);
+                createMutateAndAddNewborns(this.oldGeneration[j].DNA, this.oldGeneration[j + 1].DNA);
             }
         }
     }
@@ -151,7 +146,7 @@ class Genetic {
             population: this._clone(this.population),
             generation: this.currentGeneration,
             mean: this.getMeanFitness(),
-            fittestEver: this.fittestGeneEver,
+            fittestEver: this.fittestEntityEver,
             isFinished: this.currentGeneration === this.config.iterations
         }
     }
