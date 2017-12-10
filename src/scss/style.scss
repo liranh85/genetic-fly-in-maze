@@ -1,7 +1,14 @@
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700');
 
+$CONTAINER_WIDTH: 600px;
+$BODY_PADDING: 20px;
+
 * {
 	box-sizing: border-box;
+}
+
+body, html {
+	overflow-x: hidden;
 }
 
 body, button {
@@ -9,12 +16,30 @@ body, button {
 }
 
 body {
-	padding: 10px;
+	margin: 0;
+	padding: $BODY_PADDING;
+
+	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+		padding: 0;
+	}
 }
 
 .container {
-	width: 600px;
-	max-width: 90%;
+	width: $CONTAINER_WIDTH;
+	margin: 0 auto;
+}
+
+.responsive-container {
+	max-width: 100%;
+}
+
+.maze-wrapper {
+	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+		position: relative;
+		width: 100%;
+		height: 175px;
+		margin-top: 20px;
+	}
 }
 
 .maze {
@@ -83,16 +108,31 @@ body {
 		right: -5px;
 		background-color: white;
 	}
+
+	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+		transform: translateX(-50%) scale(0.5);
+		transform-origin: top;
+		left: 50%;
+	}
 }
 
 .controls-and-extra-info {
-	margin: 25px 0;
+	margin: 25px auto;
+	text-align: center;
+
+	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+		margin: 10px auto 15px;
+	}
 }
 
 .controls,
 .extra-info {
-	margin-left: 10px;
 	display: inline-block;
+	margin: 0 auto;
+
+	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+		display: block;
+	}
 }
 
 .controls {
@@ -100,27 +140,53 @@ body {
 
 	p {
 		margin: 5px;
+		font-weight: 600;
+
+		@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+			margin-top: 0;
+		}
 	}
 
 	button {
 		font-size: 15px;
 		font-weight: 500;
+		background-color: #ddd;
+		border: 1px solid #b4b4b4;
+		border-radius: 5px;
+
+		@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+			min-width: 80px;
+			height: 50px;
+		}
 	}
+
+	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+		margin-bottom: 10px;
+	}
+}
+
+.extra-info {
+	margin-left: 10px;
+
+	.fittest-ever-text {
+		font-weight: 600;
+	}
+}
+
+.best-fitness {
+	display: inline-block;
+	animation: best-fitness .5s ease-in;
+	padding: 0 7px;
 }
 
 .generation-table {
 	height: calc(100vh - 500px);
-	min-height: 200px;
+	max-width: 95%;
 	overflow: scroll;
 
 	table {
+		width: 100%;
 		border-collapse: collapse;
-
-		tr {
-			&:nth-child(2n + 1) {
-				background-color: rgb(165, 224, 195);
-			}
-		}
 
 		&,
 		th,
@@ -135,6 +201,14 @@ body {
 			&:last-child {
 				text-align: left;
 				padding-left: 25px;
+
+				@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+					padding-left: 15px;
+				}
+			}
+
+			@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+				padding: 5px;
 			}
 		}
 
@@ -152,5 +226,18 @@ body {
 		strong {
 			font-weight: 700;
 		}
+	}
+
+	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+		height: calc(100vh - 330px);
+	}
+}
+
+@keyframes best-fitness {
+	from {
+		transform: scale(1);
+	}
+	to {
+		transform: scale(1.5);
 	}
 }

@@ -109,12 +109,12 @@ class Genetic {
             return this.config.optimise === 'max' ?
                 a > b :
                 a < b;
-
         };
 
         const fittestGeneInThisGeneration = this.population[0];
         if (this.fittestGeneEver === null || aIsFitterThanB(fittestGeneInThisGeneration.fitness, this.fittestGeneEver.fitness) ) {
             this.fittestGeneEver = this._clone(fittestGeneInThisGeneration);
+            this.fittestGeneEver.generation = this.currentGeneration;
         }
     }
 

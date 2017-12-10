@@ -67,9 +67,8 @@ class GeneticFlyInMaze {
 
         const generation = (pop, generation, stats) => generation === 10000;
 
-        // const notification = function(pop, generation, stats, isFinished) {
         const notification = function(stats) {
-            const generationTableHeaderRow = document.getElementById('generation-table-header-row')
+            const generationTableHeaderRow = document.getElementById('generation-table-header-row');
             const row = document.createElement('tr');
             const generationCell = document.createElement('td');
             generationCell.innerHTML = stats.generation;
@@ -90,7 +89,20 @@ class GeneticFlyInMaze {
             row.appendChild(meanCell);
             row.appendChild(fitnessesCell);
             generationTableHeaderRow.parentNode.insertBefore(row, generationTableHeaderRow.nextSibling);
-            document.getElementById('fittest-ever').innerHTML = stats.fittestEver.fitness;
+            if (stats.fittestEver.generation === stats.generation) {
+                updateFittestEverInView();
+            }
+
+            function updateFittestEverInView() {
+                const bestFitness = document.getElementById('best-fitness');
+                const bestFitnessGeneration = document.getElementById('best-fitness-generation');
+                bestFitness.innerHTML = stats.fittestEver.fitness;
+                bestFitnessGeneration.innerHTML = stats.generation;
+                bestFitness.style.display = 'none';
+                setTimeout(() => {
+                    bestFitness.style.display = 'inline-block';
+                }, 0);
+            }
         };
 
         const addEventListeners = function() {

@@ -2,22 +2,24 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>JS testing</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Genetic Fly in Maze</title>
 	<link rel="stylesheet" href="css/style.css">
-
 </head>
 <body>
-	<div id="maze" class="maze container">
-		<div class="obstacle obstacle1"></div>
-		<div class="obstacle obstacle1a"></div>
-		<div class="obstacle obstacle2"></div>
-		<div class="obstacle obstacle2a"></div>
-		<div class="obstacle obstacle3"></div>
-		<div class="obstacle obstacle3a"></div>
-		<div class="obstacle obstacle4"></div>
-		<div id="exit" class="exit"></div>
+	<div class="maze-wrapper">
+		<div id="maze" class="maze container">
+			<div class="obstacle obstacle1"></div>
+			<div class="obstacle obstacle1a"></div>
+			<div class="obstacle obstacle2"></div>
+			<div class="obstacle obstacle2a"></div>
+			<div class="obstacle obstacle3"></div>
+			<div class="obstacle obstacle3a"></div>
+			<div class="obstacle obstacle4"></div>
+			<div id="exit" class="exit"></div>
+		</div>
 	</div>
-	<div class="controls-and-extra-info container">
+	<div class="controls-and-extra-info container responsive-container">
 		<div class="controls">
 			<p>Speed</p>
 			<button id="slow-down">-</button>
@@ -25,16 +27,15 @@
 			<button id="speed-up">+</button>
 		</div>
 		<div class="extra-info">
-			<div>Fittest ever: <span id="fittest-ever"></span></div>
-			<div id="fittest-ever"></div>
+			<div><span class="fittest-ever-text">Fittest ever:</span> <span id="best-fitness" class="best-fitness">?</span> (gen <span id="best-fitness-generation">?</span>)</div>
 		</div>
 	</div>
-	<div class="generation-table">
-		<table class="container">
+	<div class="generation-table container responsive-container">
+		<table>
 			<tr id="generation-table-header-row">
-				<th>Gen</th>
-				<th>Mean</th>
-				<th>Fitnesses</th>
+				<th title="Generation number">Gen</th>
+				<th title="Mean fitness">Mean</th>
+				<th title="Fitnesses of individuals in current generation">Fitnesses</th>
 			</tr>
 		</table>
 	</div>
