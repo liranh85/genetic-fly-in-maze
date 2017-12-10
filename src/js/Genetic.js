@@ -56,7 +56,7 @@ class Genetic {
             this._sortEntitiesByFittest();
             this._updateFitnessRecord();
             if (this.config.skip === 0 || this.currentGeneration % this.config.skip === 0) {
-                this.notification(this.stats());
+                this.notification(this._stats());
             }
             // This will apply both crossover and mutation
             this._createNewGeneration();
@@ -141,7 +141,7 @@ class Genetic {
         }, 0) / fittest.length;
     }
 
-    stats() {
+    _stats() {
         return {
             population: this._clone(this.population),
             generation: this.currentGeneration,

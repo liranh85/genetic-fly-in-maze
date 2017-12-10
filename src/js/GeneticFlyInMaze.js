@@ -66,7 +66,15 @@ class GeneticFlyInMaze {
         };
 
         const notification = function(stats) {
-            const generationTableHeaderRow = document.getElementById('generation-table-header-row');
+            const updateFittestEverInView = () => {
+                this.userData.DOMElements.bestFitness.innerHTML = stats.fittestEver.fitness;
+                this.userData.DOMElements.bestFitnessGeneration.innerHTML = stats.generation;
+                this.userData.DOMElements.bestFitness.style.display = 'none';
+                setTimeout(() => {
+                    this.userData.DOMElements.bestFitness.style.display = 'inline-block';
+                }, 0);
+            };
+
             const row = document.createElement('tr');
             const generationCell = document.createElement('td');
             generationCell.innerHTML = stats.generation;
@@ -86,37 +94,69 @@ class GeneticFlyInMaze {
             row.appendChild(generationCell);
             row.appendChild(meanCell);
             row.appendChild(fitnessesCell);
-            generationTableHeaderRow.parentNode.insertBefore(row, generationTableHeaderRow.nextSibling);
+            this.userData.DOMElements.generationTableHeaderRow.parentNode.insertBefore(row, this.userData.DOMElements.generationTableHeaderRow.nextSibling);
             if (stats.fittestEver.generation === stats.generation) {
                 updateFittestEverInView();
             }
-
-            function updateFittestEverInView() {
-                const bestFitness = document.getElementById('best-fitness');
-                const bestFitnessGeneration = document.getElementById('best-fitness-generation');
-                bestFitness.innerHTML = stats.fittestEver.fitness;
-                bestFitnessGeneration.innerHTML = stats.generation;
-                bestFitness.style.display = 'none';
-                setTimeout(() => {
-                    bestFitness.style.display = 'inline-block';
-                }, 0);
-            }
         };
 
-        const addEventListeners = function() {
-            document.getElementById('slow-down').addEventListener('click', () => {
-                this.userData.interval += 10;
-            });
-            document.getElementById('speed-up').addEventListener('click', () => {
-                this.userData.interval = this.userData.interval - 10 || 0;
-            });
-            document.getElementById('reset-speed').addEventListener('click', () => {
-                this.userData.interval = this.userData.defaultInterval;
-            });
+        const initFunction = function() {
+            const storeDOMElementsInUserData = () => {
+                this.userData.DOMElements = {};
+                this.userData.DOMElements.slowDownButton = document.getElementById('slow-down');
+                this.userData.DOMElements.speedUpButton = document.getElementById('speed-up');
+                this.userData.DOMElements.resetSpeedButton = document.getElementById('reset-speed');
+                this.userData.DOMElements.speedValueButton = document.getElementById('speed-value');
+                this.userData.DOMElements.generationTableHeaderRow = document.getElementById('generation-table-header-row');
+                this.userData.DOMElements.bestFitness = document.getElementById('best-fitness');
+                this.userData.DOMElements.bestFitnessGeneration = document.getElementById('best-fitness-generation');
+            };
+
+            const unblockUIElements = () => {
+                this.userData.DOMElements.slowDownButton.disabled = false;
+                this.userData.DOMElements.speedUpButton.disabled = false;
+                this.userData.DOMElements.resetSpeedButton.disabled = false;
+            };
+
+            const addEventListeners = () => {
+                this.userData.DOMElements.slowDownButton.addEventListener('click', () => {
+                    this.userData.interval += intervalIncrement;
+                    if (this.userData.interval > this.userData.maxInterval) {
+                        this.userData.interval = this.userData.maxInterval;
+                    }
+                    dispatchFlySpeedEvent();
+                    updateSpeedInView();
+                });
+                this.userData.DOMElements.speedUpButton.addEventListener('click', () => {
+                    const suggestedInterval = this.userData.interval - intervalIncrement;
+                    this.userData.interval = suggestedInterval > 0 ? suggestedInterval : this.userData.minInterval;
+                    dispatchFlySpeedEvent();
+                    updateSpeedInView();
+                });
+                this.userData.DOMElements.resetSpeedButton.addEventListener('click', () => {
+                    this.userData.interval = this.userData.defaultInterval;
+                    dispatchFlySpeedEvent();
+                    updateSpeedInView();
+                });
+            };
+
+            const dispatchFlySpeedEvent = () => {
+                const event = new CustomEvent('change-fly-speed', { detail: this.userData.interval });
+                document.dispatchEvent(event);
+            };
+
+            const updateSpeedInView = () => {
+                document.getElementById('speed-value').innerHTML = `${(100 - this.userData.interval / (this.userData.maxInterval / 100)).toFixed(0)}%`;
+            };
+
+            storeDOMElementsInUserData();
+            const intervalIncrement = this.userData.maxInterval / 100 * this.userData.intervalIncrementPercentage;
+            unblockUIElements();
+            addEventListeners();
         }
 
         const settings = {
-            initFunction: addEventListeners,
+            initFunction,
             geneticFunctions: {
                 seed,
                 mutate,
@@ -144,7 +184,10 @@ class GeneticFlyInMaze {
                     elmId: 'maze'
                 }),
                 interval: 0,
-                defaultInterval: 0
+                defaultInterval: 0,
+                minInterval: 0,
+                maxInterval: 1000,
+                intervalIncrementPercentage: 5
             }
         };
 
