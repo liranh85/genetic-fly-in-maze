@@ -44,10 +44,10 @@ class GeneticFlyInMaze {
             return [son, daughter];
         };
 
-        const fitness = async function(entity, entityId = 0) {
+        const fitness = async function(DNA, entityId = 'entity0', interval = this.userData.interval) {
             const fly = new this.userData.Fly({
                 elmId: entityId,
-                interval: this.userData.interval,
+                interval,
                 width: 25,
                 height: 25,
                 flightDistance: 15,
@@ -56,7 +56,7 @@ class GeneticFlyInMaze {
             let fitness;
 
             try {
-                const locationHistory = await fly.autoPilot(entity.slice());
+                const locationHistory = await fly.autoPilot(DNA.slice());
                 fitness = locationHistory.length;
             }
             catch(e) {
@@ -100,6 +100,37 @@ class GeneticFlyInMaze {
             }
         };
 
+        const isFinished = function(test) {
+            return this.currentGeneration >= 500;
+        };
+
+        const onPauseClicked = function() {
+            this.innerHTML = (this.innerHTML === 'Pause' ? 'Resume' : 'Pause');
+            this.classList.toggle('paused');
+        };
+
+        const onFinished = function(stats) {
+            console.log(stats)
+            if (this.config.pauseElm) {
+                this.config.pauseElm.remove();
+            }
+
+            const controlsElm = document.getElementById('controls');
+            const replayButton = document.createElement('button');
+            replayButton.classList.add('replay');
+            replayButton.appendChild(document.createTextNode('Replay fittest flight'));
+            controlsElm.parentNode.insertBefore(replayButton, controlsElm);
+            replayButton.addEventListener('click', () => {
+                this.userData.interval = this.userData.maxInterval / 2;
+                this.userData.updateSpeedInView.call(this);
+                this.fitness(stats.fittestEver.DNA, 'fittest', this.userData.interval);
+            });
+        };
+
+        const updateSpeedInView = function() {
+            document.getElementById('speed-value').innerHTML = `${(100 - this.userData.interval / (this.userData.maxInterval / 100)).toFixed(0)}%`;
+        };
+
         const initFunction = function() {
             const storeDOMElementsInUserData = () => {
                 this.userData.DOMElements = {};
@@ -119,24 +150,27 @@ class GeneticFlyInMaze {
             };
 
             const addEventListeners = () => {
+                if (this.config.pauseElm) {
+                    this.config.pauseElm.addEventListener('click', this.userData.onPauseClicked);
+                }
                 this.userData.DOMElements.slowDownButton.addEventListener('click', () => {
                     this.userData.interval += intervalIncrement;
                     if (this.userData.interval > this.userData.maxInterval) {
                         this.userData.interval = this.userData.maxInterval;
                     }
                     dispatchFlySpeedEvent();
-                    updateSpeedInView();
+                    this.userData.updateSpeedInView.call(this);
                 });
                 this.userData.DOMElements.speedUpButton.addEventListener('click', () => {
                     const suggestedInterval = this.userData.interval - intervalIncrement;
                     this.userData.interval = suggestedInterval > 0 ? suggestedInterval : this.userData.minInterval;
                     dispatchFlySpeedEvent();
-                    updateSpeedInView();
+                    this.userData.updateSpeedInView.call(this);
                 });
                 this.userData.DOMElements.resetSpeedButton.addEventListener('click', () => {
                     this.userData.interval = this.userData.defaultInterval;
                     dispatchFlySpeedEvent();
-                    updateSpeedInView();
+                    this.userData.updateSpeedInView.call(this);
                 });
             };
 
@@ -145,15 +179,11 @@ class GeneticFlyInMaze {
                 document.dispatchEvent(event);
             };
 
-            const updateSpeedInView = () => {
-                document.getElementById('speed-value').innerHTML = `${(100 - this.userData.interval / (this.userData.maxInterval / 100)).toFixed(0)}%`;
-            };
-
             storeDOMElementsInUserData();
             const intervalIncrement = this.userData.maxInterval / 100 * this.userData.intervalIncrementPercentage;
             unblockUIElements();
             addEventListeners();
-        }
+        };
 
         const settings = {
             initFunction,
@@ -165,15 +195,17 @@ class GeneticFlyInMaze {
                 notification
             },
             config: {
-                iterations: 1000,
+                isFinished,
                 size: this.trainingData.length,
                 mutationIterations: 5,
                 skip: 0,
                 optimise: 'min',
                 initialFitness: 1111,
                 numberOfFittestToSelect: 4,
-                killTheWeak: true
+                killTheWeak: true,
+                pauseElm: document.getElementById('pause')
             },
+            onFinished,
             userData: {
                 trainingData: this.trainingData.slice(),
                 seedsUsed: 0,
@@ -187,7 +219,9 @@ class GeneticFlyInMaze {
                 defaultInterval: 0,
                 minInterval: 0,
                 maxInterval: 1000,
-                intervalIncrementPercentage: 5
+                intervalIncrementPercentage: 5,
+                updateSpeedInView,
+                onPauseClicked
             }
         };
 

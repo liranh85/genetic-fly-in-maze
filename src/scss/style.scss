@@ -26,7 +26,6 @@ body {
 
 .container {
 	width: $CONTAINER_WIDTH;
-	margin: 0 auto;
 }
 
 .responsive-container {
@@ -117,11 +116,11 @@ body {
 }
 
 .controls-and-extra-info {
-	margin: 25px auto;
-	text-align: center;
+	margin: 25px 0;
 
 	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
 		margin: 10px auto 15px;
+		text-align: center;
 	}
 }
 
@@ -135,8 +134,44 @@ body {
 	}
 }
 
+button {
+	font-size: 15px;
+	font-weight: 500;
+	border-radius: 5px;
+
+	&:focus {
+		outline: 0;
+	}
+
+	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+		min-width: 80px;
+		height: 50px;
+	}
+}
+
+.pause {
+	background-color: #c72a2a;
+	border: 1px solid darken(#c72a2a, 10);
+	color: white;
+	width: 80px;
+
+	&.paused {
+		background-color: #2e9c2e;
+		border: 1px solid darken(#2e9c2e, 10);
+	}
+
+	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+		width: auto;
+	}
+}
+
+.replay {
+	background-color: #b5d3ff;
+	border: 1px solid darken(#b5d3ff, 10);
+}
+
 .controls {
-	text-align: center;
+	margin: 0 15px;
 
 	p {
 		margin: 5px;
@@ -152,16 +187,8 @@ body {
 	}
 
 	button {
-		font-size: 15px;
-		font-weight: 500;
 		background-color: #ddd;
-		border: 1px solid #b4b4b4;
-		border-radius: 5px;
-
-		@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
-			min-width: 80px;
-			height: 50px;
-		}
+		border: 1px solid darken(#ddd, 10);
 	}
 
 	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
@@ -170,8 +197,6 @@ body {
 }
 
 .extra-info {
-	margin-left: 10px;
-
 	.fittest-ever-text {
 		font-weight: 600;
 	}
@@ -234,6 +259,7 @@ body {
 
 	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
 		height: calc(100vh - 330px);
+		margin: 0 auto;
 	}
 }
 
