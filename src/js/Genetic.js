@@ -7,12 +7,13 @@ class Genetic {
         this.fitness = settings.geneticFunctions.fitness;
         this.notification = settings.geneticFunctions.notification;
         this.config = settings.config;
+        this.isFinished = settings.isFinished;
         this.onFinished = settings.onFinished;
         this.userData = settings.userData;
         this.population = [];
         this.currentGeneration = 0;
         this.fittestEntityEver = null;
-        this.paused = false;
+        this.paused = false,
         this._init();
     }
 
@@ -23,13 +24,26 @@ class Genetic {
         }
         this._createFirstGeneration();
         if (this.config.pauseElm) {
-            this.config.pauseElm.addEventListener('click', this._onPauseClicked.bind(this));
+            this._onPauseClicked = this._onPauseClicked.bind(this);
+            this.config.pauseElm.addEventListener('click', this._onPauseClicked);
+        }
+        if (this.config.stopElm) {
+            this._onStopClicked = this._onStopClicked.bind(this);
+            this.config.stopElm.addEventListener('click', this._onStopClicked);
         }
     }
 
     _onPauseClicked() {
         this.paused = !this.paused;
         if (!this.paused) {
+            this.next();
+        }
+    }
+
+    _onStopClicked() {
+        this.isFinished = () => true;
+        if (this.paused) {
+            this.paused = false;
             this.next();
         }
     }
@@ -74,11 +88,8 @@ class Genetic {
 
     next() {
         if (!this.paused) {
-            if (this.config.isFinished.call(this)) {
-                if (this.config.pauseElm) {
-                    this.config.pauseElm.removeEventListener('click', this._onPauseClicked);
-                }
-                this.onFinished(this._stats());
+            if (this.isFinished(this._stats())) {
+                this._SimulationComplete();
             } else {
                 this._createNewGeneration();
                 this.currentGeneration++;
@@ -172,6 +183,16 @@ class Genetic {
             mean: this.getMeanFitness(),
             fittestEver: this.fittestEntityEver
         }
+    }
+
+    _SimulationComplete() {
+        if (this.config.pauseElm) {
+            this.config.pauseElm.removeEventListener('click', this._onPauseClicked);
+        }
+        if (this.config.stopElm) {
+            this.config.stopElm.removeEventListener('click', this._onStopClicked);
+        }
+        this.onFinished(this._stats());
     }
 }
 

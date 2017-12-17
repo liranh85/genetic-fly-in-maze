@@ -20,19 +20,25 @@
 		</div>
 	</div>
 	<div class="controls-and-extra-info container responsive-container">
-		<button id="pause" class="pause">Pause</button>
 		<div id="controls" class="controls">
-			<p>Speed: <span id="speed-value" class="speed-value">100%</span></p>
-			<button id="slow-down" disabled>-</button>
-			<button id="reset-speed" disabled>Reset</button>
-			<button id="speed-up" disabled>+</button>
+			<div class="speed-controls">
+				<p>Speed: <span id="speed-value" class="speed-value">100%</span></p>
+				<button id="slow-down" disabled>-</button>
+				<button id="reset-speed" disabled>Reset</button>
+				<button id="speed-up" disabled>+</button>
+			</div>
+			<div id="play-controls" class="play-controls">
+				<button id="pause" class="pause" disabled>Pause</button>
+				<button id="start-stop" class="start-stop" disabled>Start</button>
+				<button id="replay" class="replay hidden">Replay fittest flight</button>
+			</div>
 		</div>
 		<div class="extra-info">
-			<div><span class="fittest-ever-text">Fittest ever:</span> <span id="best-fitness" class="best-fitness">?</span> (gen <span id="best-fitness-generation">?</span>)</div>
+			<div><span class="fittest-ever-text">Fittest ever:</span> <span id="best-fitness" class="best-fitness">?</span> <i>(gen <span id="best-fitness-generation">?</span>)</i></div>
 		</div>
 	</div>
-	<div class="generation-table container responsive-container">
-		<table>
+	<div class="generation-table-wrapper container responsive-container">
+		<table id="generation-table">
 			<tr id="generation-table-header-row">
 				<th title="Generation number">Gen</th>
 				<th title="Mean fitness">Mean</th>

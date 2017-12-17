@@ -117,6 +117,7 @@ body {
 
 .controls-and-extra-info {
 	margin: 25px 0;
+	text-align: center;
 
 	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
 		margin: 10px auto 15px;
@@ -124,23 +125,19 @@ body {
 	}
 }
 
-.controls,
-.extra-info {
-	display: inline-block;
-	margin: 0 auto;
-
-	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
-		display: block;
-	}
-}
-
 button {
 	font-size: 15px;
 	font-weight: 500;
 	border-radius: 5px;
+	cursor: pointer;
 
 	&:focus {
 		outline: 0;
+	}
+
+	&[disabled] {
+		cursor: not-allowed;
+		opacity: 0.5;
 	}
 
 	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
@@ -149,30 +146,21 @@ button {
 	}
 }
 
-.pause {
-	background-color: #c72a2a;
-	border: 1px solid darken(#c72a2a, 10);
-	color: white;
-	width: 80px;
-
-	&.paused {
-		background-color: #2e9c2e;
-		border: 1px solid darken(#2e9c2e, 10);
-	}
-
-	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
-		width: auto;
-	}
-}
-
-.replay {
-	background-color: #b5d3ff;
-	border: 1px solid darken(#b5d3ff, 10);
-}
-
 .controls {
-	margin: 0 15px;
+	margin: 15px 0;
 
+	& > div {
+		display: inline-block;
+		margin-left: auto;
+		margin-right: auto;
+
+		@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+			display: block;
+		}
+	}
+}
+
+.speed-controls {
 	p {
 		margin: 5px;
 		font-weight: 600;
@@ -192,7 +180,52 @@ button {
 	}
 
 	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
-		margin-bottom: 10px;
+		margin-bottom: 15px;
+	}
+}
+
+.play-controls {
+	button {
+		color: white;
+		margin-left: 10px;
+
+		@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+			margin-left: 0;
+		}
+	}
+	.pause {
+		background-color: #ff6a00;
+		border: 1px solid darken(#ff6a00, 10);
+		width: 80px;
+
+		&.paused {
+			background-color: #2e9c2e;
+			border: 1px solid darken(#2e9c2e, 10);
+		}
+
+		@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+			width: auto;
+		}
+	}
+
+	.start-stop {
+		background-color: #2e9c2e;
+			border: 1px solid darken(#2e9c2e, 10);
+		width: 80px;
+
+		&.started {
+			background-color: #c72a2a;
+			border: 1px solid darken(#c72a2a, 10);
+		}
+	}
+
+	.replay {
+		background-color: #4f97ff;
+		border: 1px solid darken(#4f97ff, 10);
+
+		&.hidden {
+			display: none;
+		}
 	}
 }
 
@@ -208,8 +241,8 @@ button {
 	padding: 0 7px;
 }
 
-.generation-table {
-	height: calc(100vh - 500px);
+.generation-table-wrapper {
+	height: calc(100vh - 534px);
 	max-width: 95%;
 	overflow: scroll;
 
@@ -258,7 +291,7 @@ button {
 	}
 
 	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
-		height: calc(100vh - 330px);
+		height: calc(100vh - 404px);
 		margin: 0 auto;
 	}
 }
