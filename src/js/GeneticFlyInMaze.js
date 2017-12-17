@@ -41,6 +41,7 @@ class GeneticFlyInMaze {
         };
         this.userData.defaultInterval = this.userData.interval;
         this.DOMElements = {
+            mazeWrapper: document.getElementById('maze-wrapper'),
             slowDownButton: document.getElementById('slow-down'),
             speedUpButton: document.getElementById('speed-up'),
             resetSpeedButton: document.getElementById('reset-speed'),
@@ -52,6 +53,7 @@ class GeneticFlyInMaze {
     }
 
     init() {
+        this.DOMElements.mazeWrapper.classList.add('training');
         const flies = [];
         for (let i = 0; i < this.userData.populationSize; i++) {
             flies.push(new Fly({
@@ -70,6 +72,8 @@ class GeneticFlyInMaze {
 
         Promise.all(promises).then((trainingData) => {
             this.trainingData = trainingData;
+            this.DOMElements.mazeWrapper.classList.remove('training');
+            this.DOMElements.mazeWrapper.classList.add('ready');
             this._ready();
         });
     }
@@ -263,6 +267,7 @@ class GeneticFlyInMaze {
         };
 
         this.seedsUsed = 0;
+        this.userData.interval = this.userData.defaultInterval;
         const intervalIncrement = userData.maxInterval / 100 * userData.intervalIncrementPercentage;
         setupUIElements();
         resetNotificationTable();
