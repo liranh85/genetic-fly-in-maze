@@ -152,8 +152,17 @@ body {
 	}
 }
 
+.created-by {
+	margin: 5px 0;
+	font-size: 14px;
+
+	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
+		text-align: center;
+	}
+}
+
 .controls-and-extra-info {
-	margin: 25px 0;
+	margin: 10px 0 25px;
 	text-align: center;
 
 	@media screen and (max-width: $CONTAINER_WIDTH + $BODY_PADDING) {
@@ -184,7 +193,7 @@ button {
 }
 
 .controls {
-	margin: 15px 0;
+	margin: 0 0 15px;
 
 	& > div {
 		display: inline-block;
