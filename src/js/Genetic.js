@@ -36,7 +36,7 @@ class Genetic {
     _onPauseClicked() {
         this.paused = !this.paused;
         if (!this.paused) {
-            this.next();
+            this._next();
         }
     }
 
@@ -44,7 +44,7 @@ class Genetic {
         this.isFinished = () => true;
         if (this.paused) {
             this.paused = false;
-            this.next();
+            this._next();
         }
     }
 
@@ -83,10 +83,10 @@ class Genetic {
         if (this.config.skip === 0 || this.currentGeneration % this.config.skip === 0) {
             this.notification(this._stats());
         }
-        this.next();
+        this._next();
     }
 
-    next() {
+    _next() {
         if (!this.paused) {
             if (this.isFinished(this._stats())) {
                 this._SimulationComplete();

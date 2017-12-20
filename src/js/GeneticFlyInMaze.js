@@ -10,16 +10,16 @@ class GeneticFlyInMaze {
         this.replayElm = document.getElementById('replay');
         this.onReplayClickedBound;
         this.settings = {};
-        this.initFunction = this.initFunction.bind(this);
-        this.seed = this.seed.bind(this);
-        this.mutate = this.mutate.bind(this);
-        this.crossover = this.crossover.bind(this);
-        this.fitness = this.fitness.bind(this);
-        this.notification = this.notification.bind(this);
-        this.isFinished = this.isFinished.bind(this);
-        this.onFinished = this.onFinished.bind(this);
-        this.updateSpeedInView = this.updateSpeedInView.bind(this);
-        this.onPauseClicked = this.onPauseClicked.bind(this);
+        this._initFunction = this._initFunction.bind(this);
+        this._seed = this._seed.bind(this);
+        this._mutate = this._mutate.bind(this);
+        this._crossover = this._crossover.bind(this);
+        this._fitness = this._fitness.bind(this);
+        this._notification = this._notification.bind(this);
+        this._isFinished = this._isFinished.bind(this);
+        this._onFinished = this._onFinished.bind(this);
+        this._updateSpeedInView = this._updateSpeedInView.bind(this);
+        this._onPauseClicked = this._onPauseClicked.bind(this);
         this.world = new World({
             width: 600,
             height: 350,
@@ -104,7 +104,7 @@ class GeneticFlyInMaze {
         this._initDraggable();
     }
 
-    seed() {
+    _seed() {
         const seed = this.trainingData[this.seedsUsed];
         if (++this.seedsUsed >= this.trainingData.length) {
             this.seedsUsed = 0;
@@ -112,7 +112,7 @@ class GeneticFlyInMaze {
         return seed;
     };
 
-    mutate(entity, iterations = 1) {
+    _mutate(entity, iterations = 1) {
         const mutated = entity.slice();
         for(let i = 0; i < iterations; i++) {
             let index = Math.floor(Math.random() * entity.length);
@@ -122,7 +122,7 @@ class GeneticFlyInMaze {
         return mutated;
     };
 
-    crossover(mother, father) {
+    _crossover(mother, father) {
         // two-point crossover
         const len = mother.length;
         let ca = Math.floor(Math.random()*len);
@@ -139,7 +139,7 @@ class GeneticFlyInMaze {
         return [son, daughter];
     };
 
-    async fitness(DNA, entityId = 'entity0', interval = this.userData.interval) {
+    async _fitness(DNA, entityId = 'entity0', interval = this.userData.interval) {
         const fly = new Fly({
             ...this.flySettings,
             ... {
@@ -159,7 +159,7 @@ class GeneticFlyInMaze {
         return fitness;
     };
 
-    notification(stats) {
+    _notification(stats) {
         const updateFittestEverInView = () => {
             this.DOMElements.bestFitness.innerHTML = stats.fittestEver.fitness;
             this.DOMElements.bestFitnessGeneration.innerHTML = stats.fittestEver.generation;
@@ -195,20 +195,20 @@ class GeneticFlyInMaze {
         }
     };
 
-    onPauseClicked() {
+    _onPauseClicked() {
         const pauseElm = this.settings.config.pauseElm;
         pauseElm.innerHTML = (pauseElm.innerHTML === 'Pause' ? 'Resume' : 'Pause');
         pauseElm.classList.toggle('paused');
     };
 
-    isFinished(stats) {
+    _isFinished(stats) {
         return stats.generation >= 500;
     }
 
-    onFinished(stats) {
+    _onFinished(stats) {
         this.settings.config.pauseElm.disabled = true;
         if(this.settings.config.pauseElm.classList.contains('paused')) {
-            this.onPauseClicked();
+            this._onPauseClicked();
         }
         this.settings.config.stopElm.innerHTML = 'Start';
         this.settings.config.stopElm.classList.remove('started');
@@ -219,25 +219,25 @@ class GeneticFlyInMaze {
 
         function onReplayClicked() {
             this.userData.interval = this.userData.maxInterval * 0.2;
-            this.updateSpeedInView();
+            this._updateSpeedInView();
             this.settings.geneticFunctions.fitness(stats.fittestEver.DNA, 'fittest', this.userData.interval);
         }
     };
 
-    updateSpeedInView() {
+    _updateSpeedInView() {
         document.getElementById('speed-value').innerHTML = `${(100 - this.userData.interval / (this.userData.maxInterval / 100)).toFixed(0)}%`;
     };
 
-    initFunction() {
+    _initFunction() {
         const userData = this.userData;
 
         const setupUIElements = () => {
-            this.updateSpeedInView();
+            this._updateSpeedInView();
             this.DOMElements.slowDownButton.disabled = false;
             this.DOMElements.resetSpeedButton.disabled = false;
             this.DOMElements.speedUpButton.disabled = false;
             this.settings.config.pauseElm.disabled = false;
-            this.settings.config.pauseElm.removeEventListener('click', this.onPauseClicked);
+            this.settings.config.pauseElm.removeEventListener('click', this._onPauseClicked);
             this.startStopElm.classList.add('started');
             this.startStopElm.innerHTML = 'Stop';
             this.replayElm.classList.add('hidden');
@@ -254,25 +254,25 @@ class GeneticFlyInMaze {
         };
 
         const addEventListeners = () => {
-            this.settings.config.pauseElm.addEventListener('click', this.onPauseClicked);
+            this.settings.config.pauseElm.addEventListener('click', this._onPauseClicked);
             this.DOMElements.slowDownButton.addEventListener('click', () => {
                 userData.interval += intervalIncrement;
                 if (userData.interval > userData.maxInterval) {
                     userData.interval = userData.maxInterval;
                 }
                 dispatchFlySpeedEvent();
-                this.updateSpeedInView();
+                this._updateSpeedInView();
             });
             this.DOMElements.speedUpButton.addEventListener('click', () => {
                 const suggestedInterval = userData.interval - intervalIncrement;
                 userData.interval = suggestedInterval > 0 ? suggestedInterval : userData.minInterval;
                 dispatchFlySpeedEvent();
-                this.updateSpeedInView();
+                this._updateSpeedInView();
             });
             this.DOMElements.resetSpeedButton.addEventListener('click', () => {
                 userData.interval = userData.defaultInterval;
                 dispatchFlySpeedEvent();
-                this.updateSpeedInView();
+                this._updateSpeedInView();
             });
         };
 
@@ -291,13 +291,13 @@ class GeneticFlyInMaze {
 
     _run() {
         this.settings = {
-            initFunction: this.initFunction,
+            initFunction: this._initFunction,
             geneticFunctions: {
-                seed: this.seed,
-                mutate: this.mutate,
-                crossover: this.crossover,
-                fitness: this.fitness,
-                notification: this.notification
+                seed: this._seed,
+                mutate: this._mutate,
+                crossover: this._crossover,
+                fitness: this._fitness,
+                notification: this._notification
             },
             config: {
                 size: this.userData.populationSize,
@@ -310,8 +310,8 @@ class GeneticFlyInMaze {
                 pauseElm: document.getElementById('pause'),
                 stopElm: this.startStopElm
             },
-            isFinished: this.isFinished,
-            onFinished: this.onFinished
+            isFinished: this._isFinished,
+            onFinished: this._onFinished
         };
 
         const genetic = new Genetic(this.settings);
