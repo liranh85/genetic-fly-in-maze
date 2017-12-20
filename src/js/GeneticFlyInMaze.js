@@ -1,6 +1,7 @@
 import Genetic from './Genetic';
 import World from './World';
 import Fly from './Fly';
+import Draggabilly from 'draggabilly';
 
 class GeneticFlyInMaze {
     constructor() {
@@ -74,8 +75,21 @@ class GeneticFlyInMaze {
             this.trainingData = trainingData;
             this.DOMElements.mazeWrapper.classList.remove('training');
             this.DOMElements.mazeWrapper.classList.add('ready');
+            window.setTimeout(() => {
+                this.DOMElements.mazeWrapper.classList.remove('ready');
+            }, 1500);
             this._ready();
         });
+    }
+
+    _initDraggable() {
+        const draggableElms = document.getElementsByClassName('draggable');
+        const draggies = [];
+        for (let i = 0; i < draggableElms.length; i++) {
+            draggies.push(new Draggabilly(draggableElms[i], {
+                containment: '.maze'
+            }));
+        }
     }
 
     _ready() {
@@ -87,6 +101,7 @@ class GeneticFlyInMaze {
         this.startStopElm.disabled = false;
         const boundStartClicked = startClicked.bind(this);
         this.startStopElm.addEventListener('click', boundStartClicked);
+        this._initDraggable();
     }
 
     seed() {
@@ -147,7 +162,7 @@ class GeneticFlyInMaze {
     notification(stats) {
         const updateFittestEverInView = () => {
             this.DOMElements.bestFitness.innerHTML = stats.fittestEver.fitness;
-            this.DOMElements.bestFitnessGeneration.innerHTML = stats.generation;
+            this.DOMElements.bestFitnessGeneration.innerHTML = stats.fittestEver.generation;
             this.DOMElements.bestFitness.style.display = 'none';
             setTimeout(() => {
                 this.DOMElements.bestFitness.style.display = 'inline-block';
@@ -175,7 +190,7 @@ class GeneticFlyInMaze {
         row.appendChild(meanCell);
         row.appendChild(fitnessesCell);
         this.DOMElements.generationTableHeaderRow.parentNode.insertBefore(row, this.DOMElements.generationTableHeaderRow.nextSibling);
-        if (stats.fittestEver.generation === stats.generation) {
+        if (stats.fittestEver.generation <= stats.generation && stats.fittestEver.generation > stats.generation - this.settings.config.skip) {
             updateFittestEverInView();
         }
     };
@@ -287,7 +302,7 @@ class GeneticFlyInMaze {
             config: {
                 size: this.userData.populationSize,
                 mutationIterations: 5,
-                skip: 0,
+                skip: 1,
                 optimise: 'min',
                 initialFitness: 1111,
                 numberOfFittestToSelect: 4,
