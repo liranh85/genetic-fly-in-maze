@@ -13,7 +13,8 @@ class Genetic {
         this.population = [];
         this.currentGeneration = 0;
         this.fittestEntityEver = null;
-        this.paused = false,
+        this.paused = false;
+        this._next = this._next.bind(this);
         this._init();
     }
 
@@ -22,7 +23,6 @@ class Genetic {
         if (this.initFunction) {
             this.initFunction();
         }
-        this._createFirstGeneration();
         if (this.config.pauseElm) {
             this._onPauseClicked = this._onPauseClicked.bind(this);
             this.config.pauseElm.addEventListener('click', this._onPauseClicked);
@@ -30,6 +30,16 @@ class Genetic {
         if (this.config.stopElm) {
             this._onStopClicked = this._onStopClicked.bind(this);
             this.config.stopElm.addEventListener('click', this._onStopClicked);
+        }
+    }
+
+    _initNumFittestToSelect() {
+        if (!this.config.numberOfFittestToSelect) {
+            // Default value is 2 if not set
+            this.config.numberOfFittestToSelect = 2;
+        } else if (this.config.numberOfFittestToSelect % 2 !== 0) {
+            // Must be an even number
+            this.config.numberOfFittestToSelect++;
         }
     }
 
@@ -48,52 +58,64 @@ class Genetic {
         }
     }
 
-    _initNumFittestToSelect() {
-        if (!this.config.numberOfFittestToSelect) {
-            // Default value is 2 if not set
-            this.config.numberOfFittestToSelect = 2;
-        } else if (this.config.numberOfFittestToSelect % 2 !== 0) {
-            // Must be an even number
-            this.config.numberOfFittestToSelect++;
+    async solve() {
+        try {
+            await this._createFirstGeneration();
+            this._evolve();
+        }
+        catch (e) {
+            console.error(e);
+            this._onStopClicked();
         }
     }
 
-    _createFirstGeneration() {
-        for (let i = 0; i < this.config.size; i++) {
-            this.population.push({
-                DNA: this.seed(),
-                fitness: this.config.initialFitness
-            });
+    async _createFirstGeneration() {
+        try {
+            for (let i = 0; i < this.config.size; i++) {
+                this.population.push({
+                    DNA: await this.seed(),
+                    fitness: this.config.initialFitness
+                });
+            }
+        }
+        catch (e) {
+            console.error(e);
+            this._simulationComplete();
         }
     }
 
-    async evolve() {
+    async _evolve() {
         try {
             await this._computePopulationFitness();
+            if (this.config.killTheWeak) {
+                this._killTheWeak();
+            }
+            this._sortEntitiesByFittest();
+            this._updateFitnessRecord();
+            // If notification is due
+            if (this.config.skip === 0 || this.currentGeneration % this.config.skip === 0) {
+                await this.notification(this._stats());
+            }
+            this._next();
         }
-        catch(e) {
+        catch (e) {
             console.error(e);
-            return;
+            this._onStopClicked();
         }
-        if (this.config.killTheWeak) {
-            this._killTheWeak();
-        }
-        this._sortEntitiesByFittest();
-        this._updateFitnessRecord();
-        if (this.config.skip === 0 || this.currentGeneration % this.config.skip === 0) {
-            this.notification(this._stats());
-        }
-        this._next();
     }
 
     _next() {
         if (!this.paused) {
             if (this.isFinished(this._stats())) {
-                this._SimulationComplete();
+                this.notification({
+                    ...this._stats(),
+                    isFinished: true
+                });
+                this._simulationComplete();
             } else {
                 this._createNewGeneration();
                 this.currentGeneration++;
-                this.evolve();
+                this._evolve();
             }
         }
     }
@@ -102,7 +124,7 @@ class Genetic {
         let resolvedPromisesNum = 0;
         return new Promise((resolve, reject) => {
             this.population.forEach((entity, i) => {
-                this.fitness(entity.DNA, `entity${i}`).then((response) => {
+                Promise.resolve(this.fitness(entity.DNA, `entity${i}`)).then((response) => {
                     entity.fitness = response;
                     resolvedPromisesNum++;
                     if ((this.config.killTheWeak && resolvedPromisesNum === this.config.numberOfFittestToSelect) || resolvedPromisesNum === this.population.length) {
@@ -145,9 +167,11 @@ class Genetic {
 
     _createNewGeneration() {
         const createMutateAndAddNewborns = (DNA1, DNA2) => {
-            let newbornsDNAs = this.crossover(DNA1, DNA2);
-            newbornsDNAs[0] = this.mutate(newbornsDNAs[0], this.config.mutationIterations);
-            newbornsDNAs[1] = this.mutate(newbornsDNAs[1], this.config.mutationIterations);
+            const newbornsDNAs = this.crossover(DNA1, DNA2);
+            for (let i = 0; i < this.config.mutationIterations; i++) {
+                newbornsDNAs[0] = this.mutate(newbornsDNAs[0]);
+                newbornsDNAs[1] = this.mutate(newbornsDNAs[1]);
+            }
             this.population = this.population.concat(newbornsDNAs.map((newbornDNA) => {
                 return {
                     DNA: this._clone(newbornDNA),
@@ -181,11 +205,12 @@ class Genetic {
             population: this._clone(this.population),
             generation: this.currentGeneration,
             mean: this.getMeanFitness(),
-            fittestEver: this.fittestEntityEver
+            fittestEver: this.fittestEntityEver,
+            isFinished: false
         }
     }
 
-    _SimulationComplete() {
+    _simulationComplete() {
         if (this.config.pauseElm) {
             this.config.pauseElm.removeEventListener('click', this._onPauseClicked);
         }

@@ -27,31 +27,7 @@ class Fly {
             this.interval = e.detail;
             this._setTransitionDuration();
         });
-        // document.getElementById('slow-down').addEventListener('click', () => {
-        //     this._lowerSpeed();
-        // });
-        // document.getElementById('speed-up').addEventListener('click', () => {
-        //     this._increaseSpeed();
-        // });
-        // document.getElementById('reset-speed').addEventListener('click', () => {
-        //     this._resetSpeed();
-        // });
     }
-
-    // _lowerSpeed() {
-    //     this.interval += 40;
-    //     this._setTransitionDuration();
-    // }
-
-    // _increaseSpeed() {
-    //     this.interval = this.interval - 40 || 0;
-    //     this._setTransitionDuration();
-    // }
-
-    // _resetSpeed() {
-    //     this.interval = this.defaultInterval;
-    //     this._setTransitionDuration();
-    // }
 
     _setTransitionDuration() {
         this.flyElm.style.transitionDuration = `${this.interval}${this.transitionDurationUnit}`;

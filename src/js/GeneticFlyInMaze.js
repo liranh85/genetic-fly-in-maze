@@ -41,6 +41,7 @@ class GeneticFlyInMaze {
             intervalIncrementPercentage: 5,
         };
         this.userData.defaultInterval = this.userData.interval;
+        this.NUM_POSSIBLE_DIRECTIONS = 3;
         this.DOMElements = {
             mazeWrapper: document.getElementById('maze-wrapper'),
             slowDownButton: document.getElementById('slow-down'),
@@ -110,23 +111,21 @@ class GeneticFlyInMaze {
             this.seedsUsed = 0;
         }
         return seed;
-    };
+    }
 
-    _mutate(entity, iterations = 1) {
-        const mutated = entity.slice();
-        for(let i = 0; i < iterations; i++) {
-            let index = Math.floor(Math.random() * entity.length);
-            let plusOrMinusOne = Math.floor(Math.random()*2) ? 1 : -1;
-            mutated[index] = (mutated[index] + 3 + plusOrMinusOne) % 3;
-        }
+    _mutate(DNA) {
+        const mutated = DNA.slice();
+        let index = Math.floor(Math.random() * DNA.length);
+        let plusOrMinusOne = Math.floor(Math.random()*2) ? 1 : -1;
+        mutated[index] = (mutated[index] + this.NUM_POSSIBLE_DIRECTIONS + plusOrMinusOne) % this.NUM_POSSIBLE_DIRECTIONS;
         return mutated;
-    };
+    }
 
     _crossover(mother, father) {
         // two-point crossover
-        const len = mother.length;
-        let ca = Math.floor(Math.random()*len);
-        let cb = Math.floor(Math.random()*len);
+        const length = mother.length;
+        let ca = Math.floor(Math.random() * length);
+        let cb = Math.floor(Math.random() * length);
         if (ca > cb) {
             let tmp = cb;
             cb = ca;
@@ -137,7 +136,7 @@ class GeneticFlyInMaze {
         const daughter = mother.slice(0, ca).concat(father.slice(ca, cb), mother.slice(cb));
 
         return [son, daughter];
-    };
+    }
 
     async _fitness(DNA, entityId = 'entity0', interval = this.userData.interval) {
         const fly = new Fly({
@@ -157,7 +156,7 @@ class GeneticFlyInMaze {
             fitness = 1000000;
         }
         return fitness;
-    };
+    }
 
     _notification(stats) {
         const updateFittestEverInView = () => {
@@ -193,16 +192,16 @@ class GeneticFlyInMaze {
         if (stats.fittestEver.generation <= stats.generation && stats.fittestEver.generation > stats.generation - this.settings.config.skip) {
             updateFittestEverInView();
         }
-    };
+    }
 
     _onPauseClicked() {
         const pauseElm = this.settings.config.pauseElm;
         pauseElm.innerHTML = (pauseElm.innerHTML === 'Pause' ? 'Resume' : 'Pause');
         pauseElm.classList.toggle('paused');
-    };
+    }
 
     _isFinished(stats) {
-        return stats.generation >= 500;
+        return stats.generation >= 100;
     }
 
     _onFinished(stats) {
@@ -222,11 +221,11 @@ class GeneticFlyInMaze {
             this._updateSpeedInView();
             this.settings.geneticFunctions.fitness(stats.fittestEver.DNA, 'fittest', this.userData.interval);
         }
-    };
+    }
 
     _updateSpeedInView() {
         document.getElementById('speed-value').innerHTML = `${(100 - this.userData.interval / (this.userData.maxInterval / 100)).toFixed(0)}%`;
-    };
+    }
 
     _initFunction() {
         const userData = this.userData;
@@ -287,7 +286,7 @@ class GeneticFlyInMaze {
         setupUIElements();
         resetNotificationTable();
         addEventListeners();
-    };
+    }
 
     _run() {
         this.settings = {
@@ -316,7 +315,7 @@ class GeneticFlyInMaze {
 
         const genetic = new Genetic(this.settings);
 
-		genetic.evolve();
+		genetic.solve();
     }
 }
 
