@@ -168,6 +168,7 @@ class GeneticFlyInMaze {
             }, 0);
         };
 
+        this._killTheWeak(stats.population);
         const row = document.createElement('tr');
         row.classList.add('data-row');
         const generationCell = document.createElement('td');
@@ -220,6 +221,12 @@ class GeneticFlyInMaze {
             this.userData.interval = this.userData.maxInterval * 0.2;
             this._updateSpeedInView();
             this.settings.geneticFunctions.fitness(stats.fittestEver.DNA, 'fittest', this.userData.interval);
+        }
+    }
+
+    _killTheWeak(population) {
+        for (let i = 0; i < population.length; i++) {
+            document.getElementById(`entity${i}`) && document.getElementById(`entity${i}`).dispatchEvent(new CustomEvent('fittest-found'));
         }
     }
 

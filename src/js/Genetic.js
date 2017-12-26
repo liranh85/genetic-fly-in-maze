@@ -87,9 +87,6 @@ class Genetic {
     async _evolve() {
         try {
             await this._computePopulationFitness();
-            if (this.config.killTheWeak) {
-                this._killTheWeak();
-            }
             this._sortEntitiesByFittest();
             this._updateFitnessRecord();
             // If notification is due
@@ -133,12 +130,6 @@ class Genetic {
                 });
             });
         });
-    }
-
-    _killTheWeak() {
-        for (let i = 0; i < this.population.length; i++) {
-            document.getElementById(`entity${i}`) && document.getElementById(`entity${i}`).dispatchEvent(new CustomEvent('fittest-found'));
-        }
     }
 
     _sortEntitiesByFittest() {
