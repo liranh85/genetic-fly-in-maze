@@ -20,9 +20,10 @@
     "gulp": "^3.9.1",
     "gulp-connect": "^5.0.0",
     "gulp-sass": "^3.0.0",
-    "vinyl-source-stream": "^1.1.0"
+    "vinyl-source-stream": "^1.1.2"
   },
   "dependencies": {
-    "draggabilly": "^2.1.1"
+    "draggabilly": "^2.1.1",
+    "genetic-lib": "^1.0.0-beta.5"
   }
 }

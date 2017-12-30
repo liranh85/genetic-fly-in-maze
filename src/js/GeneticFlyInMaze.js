@@ -1,4 +1,4 @@
-import Genetic from './Genetic';
+import Genetic from 'genetic-lib';
 import World from './World';
 import Fly from './Fly';
 import Draggabilly from 'draggabilly';
