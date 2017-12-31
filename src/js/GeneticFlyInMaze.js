@@ -202,7 +202,7 @@ class GeneticFlyInMaze {
     }
 
     _isFinished(stats) {
-        return stats.generation >= 100;
+        return stats.generation >= 500;
     }
 
     _onFinished(stats) {
