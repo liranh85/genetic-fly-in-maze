@@ -33,15 +33,15 @@ class GeneticFlyInMaze {
             interval: 0
         };
         this.seedsUsed;
-        this.userData = {
+        this.appSettings = {
             populationSize: 20,
             interval: 0,
             minInterval: 0,
             maxInterval: 1000,
             intervalIncrementPercentage: 5,
+            NUM_POSSIBLE_DIRECTIONS: 3
         };
-        this.userData.defaultInterval = this.userData.interval;
-        this.NUM_POSSIBLE_DIRECTIONS = 3;
+        this.appSettings.defaultInterval = this.appSettings.interval;
         this.DOMElements = {
             mazeWrapper: document.getElementById('maze-wrapper'),
             slowDownButton: document.getElementById('slow-down'),
@@ -57,7 +57,7 @@ class GeneticFlyInMaze {
     init() {
         this.DOMElements.mazeWrapper.classList.add('training');
         const flies = [];
-        for (let i = 0; i < this.userData.populationSize; i++) {
+        for (let i = 0; i < this.appSettings.populationSize; i++) {
             flies.push(new Fly({
                 ...this.flySettings,
                 ... {
@@ -117,7 +117,7 @@ class GeneticFlyInMaze {
         const mutated = DNA.slice();
         let index = Math.floor(Math.random() * DNA.length);
         let plusOrMinusOne = Math.floor(Math.random()*2) ? 1 : -1;
-        mutated[index] = (mutated[index] + this.NUM_POSSIBLE_DIRECTIONS + plusOrMinusOne) % this.NUM_POSSIBLE_DIRECTIONS;
+        mutated[index] = (mutated[index] + this.appSettings.NUM_POSSIBLE_DIRECTIONS + plusOrMinusOne) % this.appSettings.NUM_POSSIBLE_DIRECTIONS;
         return mutated;
     }
 
@@ -138,7 +138,7 @@ class GeneticFlyInMaze {
         return [son, daughter];
     }
 
-    async _fitness(DNA, entityId = 'entity0', interval = this.userData.interval) {
+    async _fitness(DNA, entityId = 'entity0', interval = this.appSettings.interval) {
         const fly = new Fly({
             ...this.flySettings,
             ... {
@@ -218,9 +218,9 @@ class GeneticFlyInMaze {
         this._ready();
 
         function onReplayClicked() {
-            this.userData.interval = this.userData.maxInterval * 0.2;
+            this.appSettings.interval = this.appSettings.maxInterval * 0.2;
             this._updateSpeedInView();
-            this.settings.geneticFunctions.fitness(stats.fittestEver.DNA, 'fittest', this.userData.interval);
+            this.settings.geneticFunctions.fitness(stats.fittestEver.DNA, 'fittest', this.appSettings.interval);
         }
     }
 
@@ -231,11 +231,11 @@ class GeneticFlyInMaze {
     }
 
     _updateSpeedInView() {
-        document.getElementById('speed-value').innerHTML = `${(100 - this.userData.interval / (this.userData.maxInterval / 100)).toFixed(0)}%`;
+        document.getElementById('speed-value').innerHTML = `${(100 - this.appSettings.interval / (this.appSettings.maxInterval / 100)).toFixed(0)}%`;
     }
 
     _initFunction() {
-        const userData = this.userData;
+        const appSettings = this.appSettings;
 
         const setupUIElements = () => {
             this._updateSpeedInView();
@@ -262,34 +262,34 @@ class GeneticFlyInMaze {
         const addEventListeners = () => {
             this.settings.config.pauseElm.addEventListener('click', this._onPauseClicked);
             this.DOMElements.slowDownButton.addEventListener('click', () => {
-                userData.interval += intervalIncrement;
-                if (userData.interval > userData.maxInterval) {
-                    userData.interval = userData.maxInterval;
+                appSettings.interval += intervalIncrement;
+                if (appSettings.interval > appSettings.maxInterval) {
+                    appSettings.interval = appSettings.maxInterval;
                 }
                 dispatchFlySpeedEvent();
                 this._updateSpeedInView();
             });
             this.DOMElements.speedUpButton.addEventListener('click', () => {
-                const suggestedInterval = userData.interval - intervalIncrement;
-                userData.interval = suggestedInterval > 0 ? suggestedInterval : userData.minInterval;
+                const suggestedInterval = appSettings.interval - intervalIncrement;
+                appSettings.interval = suggestedInterval > 0 ? suggestedInterval : appSettings.minInterval;
                 dispatchFlySpeedEvent();
                 this._updateSpeedInView();
             });
             this.DOMElements.resetSpeedButton.addEventListener('click', () => {
-                userData.interval = userData.defaultInterval;
+                appSettings.interval = appSettings.defaultInterval;
                 dispatchFlySpeedEvent();
                 this._updateSpeedInView();
             });
         };
 
         const dispatchFlySpeedEvent = () => {
-            const event = new CustomEvent('change-fly-speed', { detail: userData.interval });
+            const event = new CustomEvent('change-fly-speed', { detail: appSettings.interval });
             document.dispatchEvent(event);
         };
 
         this.seedsUsed = 0;
-        this.userData.interval = this.userData.defaultInterval;
-        const intervalIncrement = userData.maxInterval / 100 * userData.intervalIncrementPercentage;
+        this.appSettings.interval = this.appSettings.defaultInterval;
+        const intervalIncrement = appSettings.maxInterval / 100 * appSettings.intervalIncrementPercentage;
         setupUIElements();
         resetNotificationTable();
         addEventListeners();
@@ -306,7 +306,7 @@ class GeneticFlyInMaze {
                 notification: this._notification
             },
             config: {
-                size: this.userData.populationSize,
+                size: this.appSettings.populationSize,
                 mutationIterations: 5,
                 skip: 1,
                 optimise: 'min',
