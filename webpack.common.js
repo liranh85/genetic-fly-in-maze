@@ -7,7 +7,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 module.exports = {
   entry: {
     main: [
-      'idempotent-babel-polyfill',
+      'babel-polyfill',
       path.join(__dirname, 'src', 'index.js')
     ]
   },
