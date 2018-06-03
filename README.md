@@ -5,7 +5,7 @@ A Genetic Algorithm simulating flies in a maze finding the exit on their own usi
 http://www.liran.co.uk/ga/genetic-fly-in-maze
 
 ## Installation
-```console
+```
 git clone git@github.com:liranh85/genetic-fly-in-maze.git
 npm install
 ```
