@@ -1,3 +1,5 @@
+import { events } from './constants'
+
 class Fly {
   constructor (settings) {
     this.elmId = settings.elmId
@@ -23,7 +25,7 @@ class Fly {
 
   _init () {
     this._createFlyElement()
-    document.addEventListener('change-fly-speed', e => {
+    document.addEventListener(events.CHANGE_FLY_SPEED, e => {
       this.interval = e.detail
       this._setTransitionDuration()
     })
@@ -98,14 +100,17 @@ class Fly {
 
   _fittestFoundHandler () {
     this.keepAutoPilotIntervalRunning = false
-    this.flyElm.removeEventListener('fittest-found', this._fittestFoundHandler)
+    this.flyElm.removeEventListener(
+      events.FITTEST_FOUND,
+      this._fittestFoundHandler
+    )
     this.flyElm.remove()
     this.autoPilotPromise.reject && this.autoPilotPromise.reject()
   }
 
   autoPilot (directions = null) {
     this.flyElm.addEventListener(
-      'fittest-found',
+      events.FITTEST_FOUND,
       this._fittestFoundHandler.bind(this)
     )
 
