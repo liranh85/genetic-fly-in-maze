@@ -1,4 +1,4 @@
-# Genetic String Solver
+# Genetic Fly In Maze
 A Genetic Algorithm simulating flies in a maze finding the exit on their own using the laws of Natural Selection
 
 ## Live example
