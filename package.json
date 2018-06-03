@@ -1,7 +1,7 @@
 {
   "name": "genetic-fly-in-maze",
-  "version": "1.1.1",
-  "description": "A Genetic Algorithm for flies in a maze finding the exit on their own using the laws of Natural Selection",
+  "version": "1.1.2",
+  "description": "A Genetic Algorithm simulating flies in a maze finding the exit on their own using the laws of Natural Selection",
   "main": "dist/index.js",
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.js",
@@ -55,7 +55,7 @@
     "webpack-merge": "^4.1.2"
   },
   "dependencies": {
-    "draggabilly": "^2.1.1",
+    "draggabilly": "2.1.1",
     "genetic-lib": "^1.0.0"
   }
 }
