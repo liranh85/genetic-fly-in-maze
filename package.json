@@ -1,6 +1,6 @@
 {
   "name": "genetic-fly-in-maze",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A Genetic Algorithm simulating flies in a maze finding the exit on their own using the laws of Natural Selection",
   "main": "dist/index.js",
   "scripts": {
@@ -56,6 +56,6 @@
   },
   "dependencies": {
     "draggabilly": "2.1.1",
-    "genetic-lib": "^1.0.0"
+    "genetic-lib": "^1.1.0"
   }
 }

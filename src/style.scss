@@ -303,6 +303,12 @@ button {
 			border: 1px solid black;
 		}
 
+		.data-row {
+			&.maze-changed {
+				background-color: #ddd;
+			}
+		}
+
 		th,
 		td {
 			padding: 10px;

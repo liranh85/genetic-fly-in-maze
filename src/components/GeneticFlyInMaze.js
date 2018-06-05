@@ -8,6 +8,7 @@ class GeneticFlyInMaze {
   constructor (options) {
     this.state = {
       interval: options.interval,
+      shouldResetFittest: false,
       stats: null
     }
     this.options = options
@@ -144,10 +145,17 @@ class GeneticFlyInMaze {
     const { css } = this
     const draggableElms = document.getElementsByClassName(css.draggable)
     Array.prototype.forEach.call(draggableElms, draggableElm => {
-      new Draggabilly(draggableElm, {
+      const draggie = new Draggabilly(draggableElm, {
         containment: `.${css.maze}`
       })
+      draggie.on('dragEnd', this._resetFittest)
     })
+  }
+
+  _resetFittest = event => {
+    window.setTimeout(() => {
+      this.state.shouldResetFittest = true
+    }, 500)
   }
 
   _seed = () => {
@@ -219,28 +227,25 @@ class GeneticFlyInMaze {
     _killTheWeak(stats.population)
     _updateGenerationTable(stats)
     _updateFittestEverInView(stats)
+    this.state.shouldResetFittest = false
   }
 
-  _updateFittestEverInView = stats => {
-    const { elm, settings } = this
-    if (
-      stats.fittestEver.generation > stats.generation ||
-      stats.fittestEver.generation <= stats.generation - settings.skip
-    ) {
-      return
+  _killTheWeak (population) {
+    for (let i = 0; i < population.length; i++) {
+      document.getElementById(`entity${i}`) &&
+        document
+          .getElementById(`entity${i}`)
+          .dispatchEvent(new CustomEvent(events.FITTEST_FOUND))
     }
-    elm.bestFitness.innerHTML = stats.fittestEver.fitness
-    elm.bestFitnessGeneration.innerHTML = stats.fittestEver.generation
-    elm.bestFitness.style.display = 'none'
-    setTimeout(() => {
-      elm.bestFitness.style.display = 'inline-block'
-    }, 0)
   }
 
   _updateGenerationTable = stats => {
     const { css, elm, settings } = this
     const row = document.createElement('tr')
     row.classList.add(css.dataRow)
+    if (this.state.shouldResetFittest) {
+      row.classList.add('maze-changed')
+    }
     const generationCell = document.createElement('td')
     generationCell.innerHTML = stats.generation
     const meanCell = document.createElement('td')
@@ -263,6 +268,33 @@ class GeneticFlyInMaze {
       row,
       elm.generationTableHeaderRow.nextSibling
     )
+  }
+
+  _updateFittestEverInView = stats => {
+    const { elm, settings } = this
+    let fittestEver
+    if (this.state.shouldResetFittest) {
+      fittestEver = {
+        DNA: stats.population[0].DNA,
+        fitness: stats.population[0].fitness,
+        generation: stats.generation
+      }
+      this.genetic.setFittestEver(fittestEver)
+    } else {
+      if (
+        stats.fittestEver.generation > stats.generation ||
+        stats.fittestEver.generation <= stats.generation - settings.skip
+      ) {
+        return
+      }
+      fittestEver = stats.fittestEver
+    }
+    elm.bestFitness.innerHTML = fittestEver.fitness
+    elm.bestFitnessGeneration.innerHTML = fittestEver.generation
+    elm.bestFitness.style.display = 'none'
+    setTimeout(() => {
+      elm.bestFitness.style.display = 'inline-block'
+    }, 0)
   }
 
   _onClickPause = () => {
@@ -316,15 +348,6 @@ class GeneticFlyInMaze {
     state.interval = options.maxInterval * 0.2
     _updateSpeedInView()
     settings.fitness(state.stats.fittestEver.DNA, 'fittest')
-  }
-
-  _killTheWeak (population) {
-    for (let i = 0; i < population.length; i++) {
-      document.getElementById(`entity${i}`) &&
-        document
-          .getElementById(`entity${i}`)
-          .dispatchEvent(new CustomEvent(events.FITTEST_FOUND))
-    }
   }
 
   _updateSpeedInView = () => {
